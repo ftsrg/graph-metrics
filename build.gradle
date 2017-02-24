@@ -1,0 +1,23 @@
+apply plugin: 'java'
+
+group = 'model'
+version = '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+  jcenter();
+}
+
+ext {
+  flinkVersion = '1.2.0'
+}
+
+dependencies {
+  compile group: 'org.apache.flink', name: 'flink-streaming-java_2.10', version: flinkVersion 
+  compile group: 'org.apache.flink', name: 'flink-java', version: flinkVersion
+  compile group: 'org.apache.flink', name: 'flink-clients_2.10', version: flinkVersion
+  compile group: 'org.apache.flink', name: 'flink-gelly_2.10', version: flinkVersion
+  testCompile group: 'junit', name: 'junit', version: '4.12'
+}
