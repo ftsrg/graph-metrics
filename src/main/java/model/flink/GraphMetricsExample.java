@@ -9,6 +9,9 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.graph.Edge;
 import org.apache.flink.graph.Graph;
 import org.apache.flink.graph.Vertex;
+import org.apache.flink.graph.library.clustering.directed.LocalClusteringCoefficient;
+import org.apache.flink.graph.library.clustering.directed.LocalClusteringCoefficient.Result;
+import org.apache.flink.types.IntValue;
 import org.apache.flink.types.LongValue;
 
 
@@ -17,20 +20,20 @@ public class GraphMetricsExample {
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
         // Create new vertices with a Integer ID and a String value.
-        Vertex<Integer, String> v1 = new Vertex<>(1, "R1");
-        Vertex<Integer, String> v2 = new Vertex<>(2, "E1");
-        Vertex<Integer, String> v3 = new Vertex<>(3, "Off");
-        Vertex<Integer, String> v4 = new Vertex<>(4, "On");
-        Vertex<Integer, String> v5 = new Vertex<>(5, "T1");
-        Vertex<Integer, String> v6 = new Vertex<>(6, "T2");
-        Vertex<Integer, String> v7 = new Vertex<>(7, "T3");
-        Vertex<Integer, String> v8 = new Vertex<>(8, "R2");
-        Vertex<Integer, String> v9 = new Vertex<>(9, "E2");
-        Vertex<Integer, String> v10 = new Vertex<>(10, "L");
-        Vertex<Integer, String> v11 = new Vertex<>(11, "H");
-        Vertex<Integer, String> v12 = new Vertex<>(12, "T4");
-        Vertex<Integer, String> v13 = new Vertex<>(13, "T5");
-        Vertex<Integer, String> v14 = new Vertex<>(14, "T6");
+        Vertex<IntValue, String> v1 = new Vertex<>(new IntValue(1), "R1");
+        Vertex<IntValue, String> v2 = new Vertex<>(new IntValue(2), "E1");
+        Vertex<IntValue, String> v3 = new Vertex<>(new IntValue(3), "Off");
+        Vertex<IntValue, String> v4 = new Vertex<>(new IntValue(4), "On");
+        Vertex<IntValue, String> v5 = new Vertex<>(new IntValue(5), "T1");
+        Vertex<IntValue, String> v6 = new Vertex<>(new IntValue(6), "T2");
+        Vertex<IntValue, String> v7 = new Vertex<>(new IntValue(7), "T3");
+        Vertex<IntValue, String> v8 = new Vertex<>(new IntValue(8), "R2");
+        Vertex<IntValue, String> v9 = new Vertex<>(new IntValue(9), "E2");
+        Vertex<IntValue, String> v10 = new Vertex<>(new IntValue(10), "L");
+        Vertex<IntValue, String> v11 = new Vertex<>(new IntValue(11), "H");
+        Vertex<IntValue, String> v12 = new Vertex<>(new IntValue(12), "T4");
+        Vertex<IntValue, String> v13 = new Vertex<>(new IntValue(13), "T5");
+        Vertex<IntValue, String> v14 = new Vertex<>(new IntValue(14), "T6");
 
         final String VERTICES = "vertices";
         final String TARGET = "target";
@@ -38,43 +41,34 @@ public class GraphMetricsExample {
         final String OUTGOING = "outgoing";
         final String REGIONS = "regions";
 
-        // vertices : 1
-        Edge<Integer, String> e01 = new Edge<>(1, 2, VERTICES);
-        Edge<Integer, String> e02 = new Edge<>(1, 3, VERTICES);
-        Edge<Integer, String> e03 = new Edge<>(1, 4, VERTICES);
-        Edge<Integer, String> e04 = new Edge<>(8, 9, VERTICES);
-        Edge<Integer, String> e05 = new Edge<>(8, 10, VERTICES);
-        Edge<Integer, String> e06 = new Edge<>(8, 11, VERTICES);
-
-        // target: 2
-        Edge<Integer, String> e07 = new Edge<>(5, 3, TARGET);
-        Edge<Integer, String> e08 = new Edge<>(7, 3, TARGET);
-        Edge<Integer, String> e09 = new Edge<>(6, 4, TARGET);
-        Edge<Integer, String> e10 = new Edge<>(12, 10, TARGET);
-        Edge<Integer, String> e11 = new Edge<>(14, 10, TARGET);
-        Edge<Integer, String> e12 = new Edge<>(13, 11, TARGET);
-
-        // incoming: 3
-        Edge<Integer, String> e13 = new Edge<>(3, 5, INCOMING);
-        Edge<Integer, String> e14 = new Edge<>(3, 7, INCOMING);
-        Edge<Integer, String> e15 = new Edge<>(4, 6, INCOMING);
-        Edge<Integer, String> e16 = new Edge<>(10, 12, INCOMING);
-        Edge<Integer, String> e17 = new Edge<>(10, 14, INCOMING);
-        Edge<Integer, String> e18 = new Edge<>(11, 13, INCOMING);
-
-        // outgoing: 4
-        Edge<Integer, String> e19 = new Edge<>(2, 5, OUTGOING);
-        Edge<Integer, String> e20 = new Edge<>(3, 6, OUTGOING);
-        Edge<Integer, String> e21 = new Edge<>(4, 7, OUTGOING);
-        Edge<Integer, String> e22 = new Edge<>(9, 12, OUTGOING);
-        Edge<Integer, String> e23 = new Edge<>(10, 13, OUTGOING);
-        Edge<Integer, String> e24 = new Edge<>(11, 14, OUTGOING);
-
-        // regions: 5
-        Edge<Integer, String> e25 = new Edge<>(4, 8, REGIONS);
+        Edge<IntValue, String> e01 = new Edge<>(new IntValue(1), new IntValue(2), VERTICES);
+        Edge<IntValue, String> e02 = new Edge<>(new IntValue(1), new IntValue(3), VERTICES);
+        Edge<IntValue, String> e03 = new Edge<>(new IntValue(1), new IntValue(4), VERTICES);
+        Edge<IntValue, String> e04 = new Edge<>(new IntValue(8), new IntValue(9), VERTICES);
+        Edge<IntValue, String> e05 = new Edge<>(new IntValue(8), new IntValue(10), VERTICES);
+        Edge<IntValue, String> e06 = new Edge<>(new IntValue(8), new IntValue(11), VERTICES);
+        Edge<IntValue, String> e07 = new Edge<>(new IntValue(5), new IntValue(3), TARGET);
+        Edge<IntValue, String> e08 = new Edge<>(new IntValue(7), new IntValue(3), TARGET);
+        Edge<IntValue, String> e09 = new Edge<>(new IntValue(6), new IntValue(4), TARGET);
+        Edge<IntValue, String> e10 = new Edge<>(new IntValue(12), new IntValue(10), TARGET);
+        Edge<IntValue, String> e11 = new Edge<>(new IntValue(14), new IntValue(10), TARGET);
+        Edge<IntValue, String> e12 = new Edge<>(new IntValue(13), new IntValue(11), TARGET);
+        Edge<IntValue, String> e13 = new Edge<>(new IntValue(3), new IntValue(5), INCOMING);
+        Edge<IntValue, String> e14 = new Edge<>(new IntValue(3), new IntValue(7), INCOMING);
+        Edge<IntValue, String> e15 = new Edge<>(new IntValue(4), new IntValue(6), INCOMING);
+        Edge<IntValue, String> e16 = new Edge<>(new IntValue(10), new IntValue(12), INCOMING);
+        Edge<IntValue, String> e17 = new Edge<>(new IntValue(10), new IntValue(14), INCOMING);
+        Edge<IntValue, String> e18 = new Edge<>(new IntValue(11), new IntValue(13), INCOMING);
+        Edge<IntValue, String> e19 = new Edge<>(new IntValue(2), new IntValue(5), OUTGOING);
+        Edge<IntValue, String> e20 = new Edge<>(new IntValue(3), new IntValue(6), OUTGOING);
+        Edge<IntValue, String> e21 = new Edge<>(new IntValue(4), new IntValue(7), OUTGOING);
+        Edge<IntValue, String> e22 = new Edge<>(new IntValue(9), new IntValue(12), OUTGOING);
+        Edge<IntValue, String> e23 = new Edge<>(new IntValue(10), new IntValue(13), OUTGOING);
+        Edge<IntValue, String> e24 = new Edge<>(new IntValue(11), new IntValue(14), OUTGOING);
+        Edge<IntValue, String> e25 = new Edge<>(new IntValue(4), new IntValue(8), REGIONS);
 
         // Create graph.
-        List<Vertex<Integer, String>> vertices = new ArrayList<Vertex<Integer, String>>();
+        List<Vertex<IntValue, String>> vertices = new ArrayList<>();
 
         vertices.add(v1);
         vertices.add(v2);
@@ -91,7 +85,7 @@ public class GraphMetricsExample {
         vertices.add(v13);
         vertices.add(v14);
 
-        List<Edge<Integer, String>> edges = new ArrayList<>();
+        List<Edge<IntValue, String>> edges = new ArrayList<>();
 
         edges.add(e01);
         edges.add(e02);
@@ -120,19 +114,20 @@ public class GraphMetricsExample {
         edges.add(e25);
 
 
-        Graph<Integer, String, String> graph = Graph.fromCollection(vertices, edges, env);
+        Graph<IntValue, String, String> graph = Graph.fromCollection(vertices, edges, env);
 
-        DataSet<Tuple2<Integer, LongValue>> inDegrees = graph.inDegrees();
-        DataSet<Tuple2<Integer, LongValue>> outDegrees = graph.outDegrees();
+        DataSet<Tuple2<IntValue, LongValue>> inDegrees = graph.inDegrees();
+        DataSet<Tuple2<IntValue, LongValue>> outDegrees = graph.outDegrees();
         System.out.println("in-degrees:");
         inDegrees.print();
         System.out.println("out-degrees:");
         outDegrees.print();
 
-        System.out.println("Average Degree: " + (double) (graph.numberOfEdges() * 2 / graph.numberOfVertices()));
+//        System.out.println("Average Degree: " + (double) (graph.numberOfEdges() * 2 / graph.numberOfVertices()));
 
-//        graph.run(new org.apache.flink.graph.library.clustering.directed.LocalClusteringCoefficient<Integer, Integer, Integer>()
-//			.setLittleParallelism(0));
+        LocalClusteringCoefficient<IntValue, String, String> algo = new LocalClusteringCoefficient<>();
+        DataSet<Result<IntValue>> result = graph.run(algo);
+        result.print();
 
     }
 }
