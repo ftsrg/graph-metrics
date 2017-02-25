@@ -12,6 +12,8 @@ repositories {
 
 ext {
   flinkVersion = '1.2.0'
+  log4jVersion = '1.2.17'
+  junitVersion = '4.12'
 }
 
 dependencies {
@@ -19,5 +21,6 @@ dependencies {
   compile group: 'org.apache.flink', name: 'flink-java', version: flinkVersion
   compile group: 'org.apache.flink', name: 'flink-clients_2.10', version: flinkVersion
   compile group: 'org.apache.flink', name: 'flink-gelly_2.10', version: flinkVersion
-  testCompile group: 'junit', name: 'junit', version: '4.12'
+  compile group: 'log4j', name: 'log4j', version: log4jVersion
+  testCompile group: 'junit', name: 'junit', version: junitVersion
 }
