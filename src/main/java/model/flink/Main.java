@@ -5,14 +5,12 @@ import java.util.List;
 
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.graph.Edge;
-import org.apache.flink.graph.EdgeDirection;
-import org.apache.flink.graph.EdgesFunctionWithVertexValue;
 import org.apache.flink.graph.Graph;
 import org.apache.flink.graph.Vertex;
+import org.apache.flink.graph.library.clustering.directed.TriangleListing;
+import org.apache.flink.graph.library.clustering.directed.TriangleListing.Result;
 import org.apache.flink.types.IntValue;
-import org.apache.flink.util.Collector;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
@@ -61,6 +59,7 @@ public class Main {
 		Edge<IntValue, String> e23 = new Edge<>(new IntValue(10), new IntValue(13), DimensionType.OUTGOING.getLabel());
 		Edge<IntValue, String> e24 = new Edge<>(new IntValue(11), new IntValue(14), DimensionType.OUTGOING.getLabel());
 		Edge<IntValue, String> e25 = new Edge<>(new IntValue(4), new IntValue(8), DimensionType.REGIONS.getLabel());
+		Edge<IntValue, String> e26 = new Edge<>(new IntValue(2), new IntValue(3), DimensionType.REGIONS.getLabel());
 
 		// Create graph.
 		List<Vertex<IntValue, String>> vertices = new ArrayList<>();
@@ -107,6 +106,7 @@ public class Main {
 		edges.add(e23);
 		edges.add(e24);
 		edges.add(e25);
+		edges.add(e26);
 
 		Graph<IntValue, String, String> graph = Graph.fromCollection(vertices, edges, env);
 
@@ -126,11 +126,20 @@ public class Main {
 		
 		
 		Metrics metrics = new Metrics(graph);
-		metrics.dimensionalDegree();
-		metrics.nodeDimensionActivity();
-		metrics.nodeDimensionConnectivity();
-		metrics.nodeExclusiveDimensionConnectivity();
-
+//		metrics.dimensionalDegree(null, Stream.of(DimensionType.OUTGOING, DimensionType.TARGET, DimensionType.INCOMING).collect(Collectors.toList()));
+//		metrics.nodeDimensionActivity();
+//		metrics.nodeDimensionConnectivity();
+//		metrics.nodeExclusiveDimensionConnectivity();
+//		metrics.edgeDimensionActivity();
+//		metrics.edgeDimensionConnectivity();
+//		metrics.nodeActivity(8);
+//		metrics.multiplexParticipationCoefficient(1);
+		TriangleListing<IntValue, String, String> triangleListing = new TriangleListing<>();
+		DataSet<Result<IntValue>> ds = graph.run(triangleListing);
+		ds.print();
+		
+		
+		
 	}
 
 	
