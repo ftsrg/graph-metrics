@@ -13,24 +13,23 @@ import org.apache.flink.util.Collector;
 final class NodeActivity implements EdgesFunctionWithVertexValue<IntValue, String, String, Tuple2<IntValue, Integer>> {
 	private static final long serialVersionUID = 1L;
 	private IntValue id;
-	
+
 	public NodeActivity(IntValue id) {
 		this.id = id;
 	}
 
 	@Override
-	public void iterateEdges(Vertex<IntValue, String> vertex, Iterable<Edge<IntValue, String>> edges,
-			Collector<Tuple2<IntValue, Integer>> out) throws Exception {
+	public void iterateEdges(Vertex<IntValue, String> vertex, Iterable<Edge<IntValue, String>> edges, Collector<Tuple2<IntValue, Integer>> out) throws Exception {
 		if (id.getValue() == vertex.getId().getValue()) {
 			Set<String> distinctEdgeDimensions = new HashSet<>();
-			for(Edge<IntValue, String> edge : edges) {
-				if(!distinctEdgeDimensions.contains(edge.getValue())) {
+			for (Edge<IntValue, String> edge : edges) {
+				if (!distinctEdgeDimensions.contains(edge.getValue())) {
 					distinctEdgeDimensions.add((String) edge.getValue());
 				}
 			}
 			out.collect(new Tuple2<>(vertex.getId(), distinctEdgeDimensions.size()));
 		}
-		
+
 	}
-	
+
 }

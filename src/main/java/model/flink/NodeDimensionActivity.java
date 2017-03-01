@@ -10,14 +10,13 @@ import org.apache.flink.util.Collector;
 final class NodeDimensionActivity implements EdgesFunctionWithVertexValue<IntValue, String, String, Tuple2<IntValue, Integer>> {
 	private static final long serialVersionUID = 1L;
 	private DimensionType dimension;
-	
+
 	public NodeDimensionActivity(DimensionType dimension) {
 		this.dimension = dimension;
 	}
-	
+
 	@Override
-	public void iterateEdges(Vertex<IntValue, String> vertex, Iterable<Edge<IntValue, String>> edges,
-			Collector<Tuple2<IntValue, Integer>> out) throws Exception {
+	public void iterateEdges(Vertex<IntValue, String> vertex, Iterable<Edge<IntValue, String>> edges, Collector<Tuple2<IntValue, Integer>> out) throws Exception {
 		boolean isActive = false;
 		for (Edge<IntValue, String> edge : edges) {
 			if (edge.getValue().equals(dimension.getLabel())) {
@@ -25,6 +24,6 @@ final class NodeDimensionActivity implements EdgesFunctionWithVertexValue<IntVal
 				break;
 			}
 		}
-		out.collect(new Tuple2<>(vertex.getId(), isActive ? 1 : 0));		
+		out.collect(new Tuple2<>(vertex.getId(), isActive ? 1 : 0));
 	}
 }
