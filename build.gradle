@@ -23,8 +23,9 @@ dependencies {
   compile group: 'org.apache.flink', name: 'flink-java', version: flinkVersion
   compile group: 'org.apache.flink', name: 'flink-clients_2.10', version: flinkVersion
   compile group: 'org.apache.flink', name: 'flink-gelly_2.10', version: flinkVersion
-  compile group: 'log4j', name: 'log4j', version: log4jVersion
-  testCompile group: 'junit', name: 'junit', version: junitVersion
+
   compile group: 'com.opencsv', name: 'opencsv', version: openCsvVersion
   compile group: 'commons-lang', name: 'commons-lang', version: commonsLangVersion
+
+  testCompile group: 'junit', name: 'junit', version: junitVersion
 }
