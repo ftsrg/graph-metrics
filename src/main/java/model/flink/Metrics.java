@@ -3,14 +3,17 @@ package model.flink;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.DataSet;
+import org.apache.flink.api.java.operators.SortedGrouping;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.graph.EdgeDirection;
 import org.apache.flink.graph.Graph;
 import org.apache.flink.graph.GraphAnalytic;
 import org.apache.flink.graph.library.clustering.directed.GlobalClusteringCoefficient;
 import org.apache.flink.graph.library.clustering.directed.GlobalClusteringCoefficient.Result;
-import org.apache.flink.graph.library.clustering.directed.TriangleListing;
+import org.apache.flink.graph.library.clustering.undirected.TriangleListing;
 import org.apache.flink.types.IntValue;
 import org.apache.log4j.Logger;
 import java.lang.Exception;
@@ -145,10 +148,22 @@ public class Metrics {
 
 	public void triangleListing() {
 		TriangleListing<IntValue, String, String> triangleListing = new TriangleListing<>();
-		DataSet<org.apache.flink.graph.library.clustering.directed.TriangleListing.Result<IntValue>> result;
+		DataSet<Tuple3<IntValue, IntValue, IntValue>> result;
+		
 		try {
-			result = graph.run(triangleListing);
+			result = graph.getUndirected().run(triangleListing);
 			result.print();
+		} catch (Exception exception) {
+			logger.error(exception);
+		}
+	}
+	
+	public void myTriangleListing() {
+		Triangles<IntValue, String, String> triangles = new Triangles<>();
+		DataSet<Tuple3<IntValue, IntValue, String>> result;
+		try {
+			result = graph.getUndirected().run(triangles);
+			//result.print();
 		} catch (Exception exception) {
 			logger.error(exception);
 		}

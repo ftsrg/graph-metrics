@@ -1,5 +1,6 @@
 01 02 vertices
 01 03 vertices
+02 03 vertices
 01 04 vertices
 08 09 vertices
 08 10 vertices
@@ -23,3 +24,4 @@
 10 13 outgoing
 11 14 outgoing
 04 08 regions
+05 06 vertices
