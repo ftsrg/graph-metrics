@@ -1,8 +1,5 @@
 package model.flink;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.flink.graph.Graph;
 import org.apache.flink.types.IntValue;
 
