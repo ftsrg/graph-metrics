@@ -16,6 +16,7 @@ import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFields;
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFieldsFirst;
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFieldsSecond;
+import org.apache.flink.api.java.operators.GroupReduceOperator;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -72,6 +73,7 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 				.reduceGroup(new GenerateTriplets<K, EV>())
 					.name("Generate triplets");
 //		triplets.print();
+		
 		DataSet<Tuple6<K, K, K, EV, EV, EV>> triangles = triplets
 				.join(filteredByID, JoinOperatorBase.JoinHint.REPARTITION_HASH_SECOND)
 				.where(1, 2)
@@ -100,13 +102,14 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 	implements FlatMapFunction<Edge<T, ET>, Tuple3<T, T, ET>> {
 		private Tuple3<T, T, ET> edge = new Tuple3<>();
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void flatMap(Edge<T, ET> value, Collector<Tuple3<T, T, ET>> out)
 				throws Exception {
 			if (value.f0.compareTo(value.f1) < 0) {
 				edge.f0 = value.f0;
 				edge.f1 = value.f1;
-				edge.f2 = value.getValue();
+				edge.f2 = (ET)("(" + value.f0 + "-" + value.f1 + ":" + value.getValue() + ")");
 				out.collect(edge);
 			}
 		}
@@ -139,30 +142,25 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 	implements GroupReduceFunction<Tuple3<T, T, ET>, Tuple5<T, T, T, ET, ET>> {
 		private Tuple5<T, T, T, ET, ET> output = new Tuple5<>();
 
-		private List<T> visited = new ArrayList<>();
-
+		private List<Tuple2<T, ET>> visited = new ArrayList<>();
+		
 		@SuppressWarnings("unchecked")
 		@Override
 		public void reduce(Iterable<Tuple3<T, T, ET>> values, Collector<Tuple5<T, T, T, ET, ET>> out)
 				throws Exception {
 			int visitedCount = 0;
-			output.f3 = null;
-			output.f4 = null;
+			
 			Iterator<Tuple3<T, T, ET>> iter = values.iterator();
-
+			
 			while (true) {
 				Tuple3<T, T, ET> edge = iter.next();
 
 				output.f0 = edge.f0;
 				output.f2 = edge.f1;
-				if (output.f3 == null) {
-					output.f3 = (ET) ("(" + edge.f0 + "-" + edge.f1 + ": " + edge.f2 + ")");				
-				} else {
-					output.f4 = (ET) ("(" + edge.f0 + "-" + edge.f1 + ": " + edge.f2 + ")");
-				}
-
+				output.f3 = (ET) ("(" + edge.f0.copy() + "-" + edge.f1.copy() + ":" + edge.f2 + ")");
 				for (int i = 0; i < visitedCount; i++) {
-					output.f1 = visited.get(i);
+					output.f1 = visited.get(i).f0;
+					output.f4 = visited.get(i).f1;
 					out.collect(output);
 				}
 
@@ -171,9 +169,9 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 				}
 
 				if (visitedCount == visited.size()) {
-					visited.add(edge.f1.copy());
+					visited.add(new Tuple2<>(edge.f1.copy(), (ET) ("(" + edge.f0.copy() + "-" + edge.f1.copy() + ":" + edge.f2 + ")")));
 				} else {
-					edge.f1.copyTo(visited.get(visitedCount));
+					visited.set(visitedCount, new Tuple2<>(edge.f1.copy(), (ET) ("(" + edge.f0.copy() + "-" + edge.f1.copy() + ":" + edge.f2 + ")")));
 				}
 
 				visitedCount += 1;
