@@ -1,4 +1,4 @@
-package model.flink;
+package model.flink.metrics.helper;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.graph.Edge;

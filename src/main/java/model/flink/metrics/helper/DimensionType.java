@@ -1,4 +1,4 @@
-package model.flink;
+package model.flink.metrics.helper;
 
 /**
  * Enum class for dimension types.
@@ -7,8 +7,9 @@ package model.flink;
  *
  */
 public enum DimensionType {
-	VERTICES("vertices"), TARGET("target"), INCOMING("incoming"), OUTGOING("outgoing"), REGIONS("regions");
-
+//	VERTICES("vertices"), TARGET("target"), INCOMING("incoming"), OUTGOING("outgoing"), REGIONS("regions");
+	A("a"), B("b"), C("c");
+	
 	private String label;
 
 	/**

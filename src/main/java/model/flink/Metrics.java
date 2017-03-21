@@ -3,9 +3,7 @@ package model.flink;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.DataSet;
-import org.apache.flink.api.java.operators.SortedGrouping;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.graph.EdgeDirection;
@@ -16,7 +14,14 @@ import org.apache.flink.graph.library.clustering.directed.GlobalClusteringCoeffi
 import org.apache.flink.graph.library.clustering.undirected.TriangleListing;
 import org.apache.flink.types.IntValue;
 import org.apache.log4j.Logger;
-import java.lang.Exception;
+
+import model.flink.metrics.helper.DC1;
+import model.flink.metrics.helper.DimensionType;
+import model.flink.metrics.helper.DimensionalDegree;
+import model.flink.metrics.helper.EdgeDimensionActivityFilter;
+import model.flink.metrics.helper.NodeActivity;
+import model.flink.metrics.helper.NodeDimensionActivity;
+import model.flink.metrics.helper.NodeExclusiveDimensionActivity;
 
 public class Metrics {
 
@@ -158,14 +163,8 @@ public class Metrics {
 		}
 	}
 	
-	public void myTriangleListing() {
-		Triangles<IntValue, String, String> triangles = new Triangles<>();
-		DataSet<Tuple3<IntValue, IntValue, String>> result;
-		try {
-			result = graph.getUndirected().run(triangles);
-			//result.print();
-		} catch (Exception exception) {
-			logger.error(exception);
-		}
+	public void dc1() {
+		DC1 dc1 = new DC1(graph);
+		dc1.countDC1();
 	}
 }

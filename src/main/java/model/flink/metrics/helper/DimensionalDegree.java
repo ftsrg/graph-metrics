@@ -1,4 +1,4 @@
-package model.flink;
+package model.flink.metrics.helper;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import org.apache.flink.util.Collector;
  * @author Lehel
  *
  */
-final class DimensionalDegree implements EdgesFunctionWithVertexValue<IntValue, String, String, Tuple2<IntValue, Integer>> {
+public final class DimensionalDegree implements EdgesFunctionWithVertexValue<IntValue, String, String, Tuple2<IntValue, Integer>> {
 	private static final long serialVersionUID = 1L;
 	private IntValue id;
 	private List<DimensionType> dimensions;

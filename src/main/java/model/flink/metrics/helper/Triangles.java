@@ -1,4 +1,4 @@
-package model.flink;
+package model.flink.metrics.helper;
 
 import static org.apache.flink.api.common.ExecutionConfig.PARALLELISM_DEFAULT;
 
@@ -9,14 +9,12 @@ import java.util.List;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.GroupReduceFunction;
 import org.apache.flink.api.common.functions.JoinFunction;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.common.operators.base.JoinOperatorBase;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFields;
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFieldsFirst;
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFieldsSecond;
-import org.apache.flink.api.java.operators.GroupReduceOperator;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -31,7 +29,7 @@ import org.apache.flink.types.LongValue;
 import org.apache.flink.util.Collector;
 
 public class Triangles <K extends Comparable<K> & CopyableValue<K>, VV, EV>
-extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
+extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple6<K, K, K, EV, EV, EV>>{
 	
 	private OptionalBoolean sortTriangleVertices = new OptionalBoolean(false, false);
 	
@@ -41,7 +39,7 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 		return this;
 	}
 	
-	public DataSet<Tuple3<K, K, EV>> runInternal(Graph<K, VV, EV> input)
+	public DataSet<Tuple6<K, K, K, EV, EV, EV>> runInternal(Graph<K, VV, EV> input)
 			throws Exception {
 		
 		// A gráf élein megy végig, feljegyzi a megfelelõ
@@ -80,15 +78,8 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 				.equalTo(0, 1)
 				.with(new ProjectTriangles<K, EV>())
 					.name("Triangle listing");
-		triangles.print();
-//			if (sortTriangleVertices.get()) {
-//				triangles = triangles
-//					.map(new SortTriangleVertices<K>())
-//						.name("Sort triangle vertices");
-//			}
-
 		
-		return filteredByID;
+		return triangles;
 	}
 	/**
 	 * Kiszûri azokat a csúcsokat, melyeknél a source id nagyobb mint a target id.
@@ -109,7 +100,7 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 			if (value.f0.compareTo(value.f1) < 0) {
 				edge.f0 = value.f0;
 				edge.f1 = value.f1;
-				edge.f2 = (ET)("(" + value.f0 + "-" + value.f1 + ":" + value.getValue() + ")");
+				edge.f2 = (ET)(value.f0 + " " + value.f1 + " " + value.getValue());
 				out.collect(edge);
 			}
 		}
@@ -157,7 +148,7 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 
 				output.f0 = edge.f0;
 				output.f2 = edge.f1;
-				output.f3 = (ET) ("(" + edge.f0.copy() + "-" + edge.f1.copy() + ":" + edge.f2 + ")");
+				output.f3 = (ET) (edge.f0.copy() + " " + edge.f1.copy() + " " + edge.f2);
 				for (int i = 0; i < visitedCount; i++) {
 					output.f1 = visited.get(i).f0;
 					output.f4 = visited.get(i).f1;
@@ -169,9 +160,9 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 				}
 
 				if (visitedCount == visited.size()) {
-					visited.add(new Tuple2<>(edge.f1.copy(), (ET) ("(" + edge.f0.copy() + "-" + edge.f1.copy() + ":" + edge.f2 + ")")));
+					visited.add(new Tuple2<>(edge.f1.copy(), (ET) (edge.f0.copy() + " " + edge.f1.copy() + " " + edge.f2)));
 				} else {
-					visited.set(visitedCount, new Tuple2<>(edge.f1.copy(), (ET) ("(" + edge.f0.copy() + "-" + edge.f1.copy() + ":" + edge.f2 + ")")));
+					visited.set(visitedCount, new Tuple2<>(edge.f1.copy(), (ET) (edge.f0.copy() + " " + edge.f1.copy() + " " + edge.f2)));
 				}
 
 				visitedCount += 1;
@@ -189,38 +180,17 @@ extends GraphAlgorithmWrappingDataSet<K, VV, EV, Tuple3<K, K, EV>>{
 			return new Tuple6<>(triplet.f0, triplet.f1, triplet.f2, triplet.f3, triplet.f4, edge.f2);
 		}
 	}
-	
-	private static final class SortTriangleVertices<T extends Comparable<T>>
-	implements MapFunction<Tuple3<T, T, T>, Tuple3<T, T, T>> {
-		@Override
-		public Tuple3<T, T, T> map(Tuple3<T, T, T> value)
-				throws Exception {
-			// by the triangle listing algorithm we know f1 < f2
-			if (value.f0.compareTo(value.f1) > 0) {
-				T temp_val = value.f0;
-				value.f0 = value.f1;
 
-				if (temp_val.compareTo(value.f2) <= 0) {
-					value.f1 = temp_val;
-				} else {
-					value.f1 = value.f2;
-					value.f2 = temp_val;
-				}
-			}
-
-			return value;
-		}
-	}
-	
 	@Override
 	protected String getAlgorithmName() {
-		return Triangles.class.getName();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	protected boolean mergeConfiguration(GraphAlgorithmWrappingDataSet other) {
+		// TODO Auto-generated method stub
 		return false;
 	}
-
 	
 }

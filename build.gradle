@@ -26,6 +26,7 @@ dependencies {
 
   compile group: 'com.opencsv', name: 'opencsv', version: openCsvVersion
   compile group: 'commons-lang', name: 'commons-lang', version: commonsLangVersion
+  compile group: 'com.google.guava', name: 'guava', version: '21.0'
 
   testCompile group: 'junit', name: 'junit', version: junitVersion
 }

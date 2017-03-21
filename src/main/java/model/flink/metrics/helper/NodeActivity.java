@@ -1,4 +1,4 @@
-package model.flink;
+package model.flink.metrics.helper;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +10,7 @@ import org.apache.flink.graph.Vertex;
 import org.apache.flink.types.IntValue;
 import org.apache.flink.util.Collector;
 
-final class NodeActivity implements EdgesFunctionWithVertexValue<IntValue, String, String, Tuple2<IntValue, Integer>> {
+public final class NodeActivity implements EdgesFunctionWithVertexValue<IntValue, String, String, Tuple2<IntValue, Integer>> {
 	private static final long serialVersionUID = 1L;
 	private IntValue id;
 
