@@ -15,7 +15,8 @@ import org.apache.flink.graph.library.clustering.undirected.TriangleListing;
 import org.apache.flink.types.IntValue;
 import org.apache.log4j.Logger;
 
-import model.flink.metrics.helper.DC1;
+import model.flink.metrics.helper.DC1Metrics;
+import model.flink.metrics.helper.DC2Metrics;
 import model.flink.metrics.helper.DimensionType;
 import model.flink.metrics.helper.DimensionalDegree;
 import model.flink.metrics.helper.EdgeDimensionActivityFilter;
@@ -27,9 +28,10 @@ public class Metrics {
 
 	final static Logger logger = Logger.getLogger(Metrics.class);
 	private Graph<IntValue, String, String> graph;
-
+//	private DCMetrics dcMetrics;
 	public Metrics(Graph<IntValue, String, String> graph) {
 		this.graph = graph;
+//		dcMetrics = new DCMetrics(graph);
 	}
 
 	public void degrees() {
@@ -164,7 +166,20 @@ public class Metrics {
 	}
 	
 	public void dc1() {
-		DC1 dc1 = new DC1(graph);
-		dc1.countDC1();
+		DataSet<Tuple2<IntValue, Double>> result = graph.groupReduceOnEdges(new DC1Metrics(), EdgeDirection.ALL);
+		try {
+			result.print();
+		} catch (Exception exception) {
+			logger.error(exception);
+		}
+	}
+	
+	public void dc2() {
+		DataSet<Tuple2<IntValue, Double>> result = graph.groupReduceOnEdges(new DC2Metrics(), EdgeDirection.ALL);
+		try {
+			result.print();
+		} catch (Exception exception) {
+			logger.error(exception);
+		}
 	}
 }

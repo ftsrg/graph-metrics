@@ -24,6 +24,9 @@ public class Fraction {
 	}
 	
 	public double result() {
+		if (denominator == 0.0 && numerator == 0.0) {
+			return 0.0;
+		}
 		return numerator / denominator;
 	}
 	

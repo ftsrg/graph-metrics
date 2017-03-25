@@ -14,7 +14,7 @@ public class Main {
 		final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 		Graph<IntValue, String, String> graph = GraphUtils.createGraph(env);
 		EdgeUtils.init(graph);
-		MetricsUtils.startMeasure(graph, DimensionType.A);
+		MetricsUtils.startMeasure(graph, DimensionType.OUTGOING);
 	}
 
 }

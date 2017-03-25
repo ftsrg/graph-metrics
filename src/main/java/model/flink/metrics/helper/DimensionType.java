@@ -7,8 +7,8 @@ package model.flink.metrics.helper;
  *
  */
 public enum DimensionType {
-//	VERTICES("vertices"), TARGET("target"), INCOMING("incoming"), OUTGOING("outgoing"), REGIONS("regions");
-	A("a"), B("b"), C("c");
+	VERTICES("vertices"), TARGET("target"), INCOMING("incoming"), OUTGOING("outgoing"), REGIONS("regions");
+//	A("a"), B("b"), C("c");
 	
 	private String label;
 

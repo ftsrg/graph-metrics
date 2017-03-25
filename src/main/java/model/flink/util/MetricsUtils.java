@@ -21,8 +21,8 @@ public final class MetricsUtils {
 //		metrics.nodeActivity(8);
 //		metrics.multiplexParticipationCoefficient(1);
 //		metrics.triangleListing();
-		metrics.dc1();
-//		metrics.dc2();
+//		metrics.dc1();
+		metrics.dc2();
 	}
 
 	private MetricsUtils() {
