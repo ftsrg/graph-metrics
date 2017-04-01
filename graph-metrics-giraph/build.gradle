@@ -1,0 +1,5 @@
+dependencies {
+    compile group: 'org.apache.giraph', name: 'giraph-core', version: '1.1.0'
+    compile group: 'org.apache.hadoop', name: 'hadoop-core', version: '1.2.1'
+    compile group: 'junit', name: 'junit', version: junitVersion
+}

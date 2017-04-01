@@ -1,1 +1,4 @@
-rootProject.name = 'flink'
+rootProject.name = 'graph-metrics'
+
+include ':graph-metrics-flink'
+include ':graph-metrics-giraph'
