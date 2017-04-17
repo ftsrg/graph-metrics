@@ -15,13 +15,14 @@ import org.apache.log4j.Logger;
 import clustering.ClusteringCoefficient;
 
 public class GiraphAppRunner implements Tool{
-	
+
+	private final String RESOURCES_DIR = System.getProperty("user.dir") + "/src/main/resources/";
 	private Configuration conf;
 	private String inputPath;
 	private String outputPath;
 	private GiraphConfiguration giraphConf;
 	private static final Logger LOG = Logger.getLogger(GiraphAppRunner.class);
-	
+
 	@Override
 	public Configuration getConf() {
 		return conf;
@@ -34,34 +35,34 @@ public class GiraphAppRunner implements Tool{
 
 	@Override
 	public int run(String[] args) throws Exception {
-		setInputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/tiny.txt");
-		
+		setInputPath(RESOURCES_DIR + "tiny.txt");
+
 		giraphConf = new GiraphConfiguration();
-		
+
 		giraphConf.setComputationClass(InDegree.class);
 		giraphConf.setVertexInputFormatClass(JsonLongDoubleFloatDoubleVertexInputFormat.class);
 		GiraphFileInputFormat.addVertexInputPath(giraphConf, new Path(getInputPath()));
 		giraphConf.setVertexOutputFormatClass(IdWithValueTextOutputFormat.class);
-		
+
 		giraphConf.setWorkerConfiguration(0, 1, 100);
 		giraphConf.setLocalTestMode(true);
 		giraphConf.setMaxNumberOfSupersteps(10);
-		
+
 		giraphConf.SPLIT_MASTER_WORKER.set(giraphConf, false);
 		giraphConf.USE_OUT_OF_CORE_GRAPH.set(giraphConf, true);
-		
+
 //		countInDegree();
 //		countOutDegree();
 //		countLocalClusteringCoefficient();
 //		countTotalNumberOfEdges();
 		simpleMasterComputation();
-		
+
 		return 1;
-		
+
 	}
-	
+
 	public void countInDegree() {
-		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/in_degree.txt");
+		setOutputPath(RESOURCES_DIR + "in_degree.txt");
 		GiraphJob inDegreeJob;
 		try {
 			inDegreeJob = new GiraphJob(giraphConf, getClass().getName());
@@ -71,9 +72,9 @@ public class GiraphAppRunner implements Tool{
 			LOG.error(exception);
 		}
 	}
-	
+
 	public void countOutDegree() {
-		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/out_degree.txt");
+		setOutputPath(RESOURCES_DIR + "out_degree.txt");
 		giraphConf.setComputationClass(OutDegree.class);
 		GiraphJob outDegreeJob;
 		try {
@@ -84,7 +85,7 @@ public class GiraphAppRunner implements Tool{
 			LOG.error(exception);
 		}
 	}
-	
+
 	public void countLocalClusteringCoefficient() {
 		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/" +
 				"local_clustering_coefficient.txt");
@@ -98,7 +99,7 @@ public class GiraphAppRunner implements Tool{
 			LOG.error(exception);
 		}
 	}
-	
+
 	public void countTotalNumberOfEdges() {
 		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/total_number_of_edges.txt");
 		giraphConf.setComputationClass(TotalNumberOfEdges.class);
@@ -111,7 +112,7 @@ public class GiraphAppRunner implements Tool{
 			LOG.error(exception);
 		}
 	}
-	
+
 	public void simpleMasterComputation() {
 		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/simple_master_computation.txt");
 		giraphConf.setComputationClass(SimpleMasterComputeComputation.class);
@@ -124,7 +125,7 @@ public class GiraphAppRunner implements Tool{
 			LOG.error(exception);
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		ToolRunner.run(new GiraphAppRunner(), args);
 	}
@@ -144,5 +145,5 @@ public class GiraphAppRunner implements Tool{
 	public void setOutputPath(String outputPath) {
 		this.outputPath = outputPath;
 	}
-	
+
 }
