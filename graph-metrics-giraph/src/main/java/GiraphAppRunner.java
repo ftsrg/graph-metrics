@@ -12,6 +12,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import clustering.ClusteringCoefficient;
+
 public class GiraphAppRunner implements Tool{
 	
 	private Configuration conf;
@@ -48,15 +50,18 @@ public class GiraphAppRunner implements Tool{
 		giraphConf.SPLIT_MASTER_WORKER.set(giraphConf, false);
 		giraphConf.USE_OUT_OF_CORE_GRAPH.set(giraphConf, true);
 		
-		countInDegree();
-		countOutDegree();
+//		countInDegree();
+//		countOutDegree();
+//		countLocalClusteringCoefficient();
+//		countTotalNumberOfEdges();
+		simpleMasterComputation();
 		
 		return 1;
 		
 	}
 	
 	public void countInDegree() {
-		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/indegree.txt");
+		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/in_degree.txt");
 		GiraphJob inDegreeJob;
 		try {
 			inDegreeJob = new GiraphJob(giraphConf, getClass().getName());
@@ -68,13 +73,53 @@ public class GiraphAppRunner implements Tool{
 	}
 	
 	public void countOutDegree() {
-		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/outdegree.txt");
+		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/out_degree.txt");
 		giraphConf.setComputationClass(OutDegree.class);
 		GiraphJob outDegreeJob;
 		try {
 			outDegreeJob = new GiraphJob(giraphConf, getClass().getName());
 			FileOutputFormat.setOutputPath(outDegreeJob.getInternalJob(), new Path(getOutputPath()));
 			outDegreeJob.run(true);
+		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
+			LOG.error(exception);
+		}
+	}
+	
+	public void countLocalClusteringCoefficient() {
+		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/" +
+				"local_clustering_coefficient.txt");
+		giraphConf.setComputationClass(ClusteringCoefficient.ClusteringCoefficientComputation.class);
+		GiraphJob localClusteringCoefficientJob;
+		try {
+			localClusteringCoefficientJob = new GiraphJob(giraphConf, getClass().getName());
+			FileOutputFormat.setOutputPath(localClusteringCoefficientJob.getInternalJob(), new Path(getOutputPath()));
+			localClusteringCoefficientJob.run(true);
+		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
+			LOG.error(exception);
+		}
+	}
+	
+	public void countTotalNumberOfEdges() {
+		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/total_number_of_edges.txt");
+		giraphConf.setComputationClass(TotalNumberOfEdges.class);
+		GiraphJob totalNumberOfEdgesJob;
+		try {
+			totalNumberOfEdgesJob = new GiraphJob(giraphConf, getClass().getName());
+			FileOutputFormat.setOutputPath(totalNumberOfEdgesJob.getInternalJob(), new Path(getOutputPath()));
+			totalNumberOfEdgesJob.run(true);
+		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
+			LOG.error(exception);
+		}
+	}
+	
+	public void simpleMasterComputation() {
+		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/simple_master_computation.txt");
+		giraphConf.setComputationClass(SimpleMasterComputeComputation.class);
+		GiraphJob simpleMasterComputeJob;
+		try {
+			simpleMasterComputeJob = new GiraphJob(giraphConf, getClass().getName());
+			FileOutputFormat.setOutputPath(simpleMasterComputeJob.getInternalJob(), new Path(getOutputPath()));
+			simpleMasterComputeJob.run(true);
 		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
 			LOG.error(exception);
 		}

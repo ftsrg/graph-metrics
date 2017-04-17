@@ -19,7 +19,7 @@ public class OutDegree extends BasicComputation<LongWritable, DoubleWritable, Fl
 			sendMessageToAllEdges(vertex, new DoubleWritable(0.0));
 		} else if (getSuperstep() == 1) {
 			int msg = 0;
-			for (DoubleWritable message : messages) {
+			for (@SuppressWarnings("unused") DoubleWritable message : messages) {
 				msg += 1;
 			}
 			vertex.setValue(new DoubleWritable(msg));

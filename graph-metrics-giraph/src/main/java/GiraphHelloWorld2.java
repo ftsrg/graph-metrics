@@ -15,7 +15,7 @@ public class GiraphHelloWorld2 extends
                       Iterable<NullWritable> messages) {                 // variables
     System.out.print("Hello world from the: " +
       vertex.getId().toString() + " who is following:");                 
- 
+    
     for (Edge<Text, DoubleWritable> e : vertex.getEdges()) {             // one more change to types
       System.out.print(" " + e.getTargetVertexId());
     }  
