@@ -2,6 +2,8 @@ package metrics.clustering;
 
 import org.apache.hadoop.io.LongWritable;
 
+import util.MessageWrapper;
+
 public class LongIdFriendsList extends MessageWrapper<LongWritable, LongArrayListWritable> {
 
 	@Override

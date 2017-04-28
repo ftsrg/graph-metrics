@@ -19,6 +19,8 @@ import inputformats.LongTextTextAdjacencyListVertexInputFormat;
 import metrics.InDegree;
 import metrics.OutDegree;
 import metrics.clustering.LocalClusteringCoefficient;
+import metrics.dimensionaldegree.DimensionalDegree;
+import util.DimensionType;
 
 public class GiraphAppRunner implements Tool {
 
@@ -57,9 +59,10 @@ public class GiraphAppRunner implements Tool {
 		giraphConf.SPLIT_MASTER_WORKER.set(giraphConf, false);
 		giraphConf.USE_OUT_OF_CORE_GRAPH.set(giraphConf, true);
 
-		// countInDegree();
-		// countOutDegree();
-		countLocalClusteringCoefficient();
+//		countInDegree();
+//		countOutDegree();
+//		countLocalClusteringCoefficient();
+		countDimensionalDegree();
 
 		return 1;
 
@@ -110,7 +113,23 @@ public class GiraphAppRunner implements Tool {
 			LOG.error(exception);
 		}
 	}
-
+	
+	public void countDimensionalDegree() throws IOException {
+		final String FILE_NAME = "dimensional_degree.txt";
+		FileUtils.deleteDirectory(new File(RESOURCES_DIR + FILE_NAME));
+		setOutputPath(RESOURCES_DIR + FILE_NAME);
+		giraphConf.setComputationClass(DimensionalDegree.DimensionalDegreeComputation.class);
+		giraphConf.setMasterComputeClass(DimensionalDegree.MasterCompute.class);
+		GiraphJob dimensionalDegreeJob;
+		try {
+			dimensionalDegreeJob = new GiraphJob(giraphConf, getClass().getName());
+			FileOutputFormat.setOutputPath(dimensionalDegreeJob.getInternalJob(), new Path(getOutputPath()));
+			dimensionalDegreeJob.run(true);
+		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
+			LOG.error(exception);
+		}
+	}
+	
 	public static void main(String[] args) throws Exception {
 		ToolRunner.run(new GiraphAppRunner(), args);
 	}

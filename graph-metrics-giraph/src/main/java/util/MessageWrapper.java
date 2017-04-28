@@ -1,4 +1,4 @@
-package metrics.clustering;
+package util;
 
 /**
  * Copyright 2014 Grafos.ml
