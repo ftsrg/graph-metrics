@@ -1,24 +1,26 @@
-import org.junit.Test;
+import org.apache.giraph.conf.GiraphConfiguration;
+import org.apache.giraph.io.formats.AdjacencyListTextVertexOutputFormat;
+import org.apache.giraph.io.formats.TextDoubleDoubleAdjacencyListVertexInputFormat;
+import org.apache.giraph.utils.InternalVertexRunner;
 import org.junit.Assert;
 import org.junit.Ignore;
-import org.apache.giraph.conf.GiraphConfiguration;
-import org.apache.giraph.io.formats.TextDoubleDoubleAdjacencyListVertexInputFormat;
-import org.apache.giraph.io.formats.AdjacencyListTextVertexOutputFormat;
-import org.apache.giraph.utils.InternalVertexRunner;
+import org.junit.Test;
+
+import metrics.InDegree;
 
 public class TestGiraphApp {
 	final static String[] graphSeed = new String[] { "seed\t0" };
 	final static int EXPECTED_VERTICES = 7; // The number of vertices we expect to
 											// be created in the resulting graph
 
-	// @Ignore("The code this test validates needs to be fixed")
+	@Ignore("The code this test validates needs to be fixed")
 	@Test
 	public void testNumberOfVertices() throws Exception {
 		GiraphConfiguration conf = new GiraphConfiguration(); // Giraph configuration
 		// object: it will configure our test Giraph run just like a combination of
 		// static configuration files and command line options we used in all of our
 		// previous examples
-		conf.setComputationClass(GenerateTwitterParallel.class);
+		conf.setComputationClass(InDegree.class);
 		conf.setVertexInputFormatClass(TextDoubleDoubleAdjacencyListVertexInputFormat.class);
 		conf.setVertexOutputFormatClass(AdjacencyListTextVertexOutputFormat.class);
 

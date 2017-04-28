@@ -1,5 +1,3 @@
-package clustering;
-
 /**
  * Copyright 2014 Grafos.ml
  *
@@ -15,12 +13,12 @@ package clustering;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package metrics.clustering;
 
 import org.apache.giraph.utils.ArrayListWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.WritableComparable;
 
-@SuppressWarnings("serial")
 public class LongArrayListWritable extends ArrayListWritable<LongWritable>
 		implements WritableComparable<LongArrayListWritable> {
 	/** Default constructor for reflection */
