@@ -1,0 +1,5 @@
+0	Anikó	1	asd	3	bsd
+1	Béla	0	csd	2	dsd	3	esd
+2	Cékla	1	fsd	4	gsd
+3	Dénes	0	hsd	1	jsd	4	ksd
+4	Elemér	3	lsd	2	msd

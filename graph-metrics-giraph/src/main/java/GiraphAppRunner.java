@@ -4,6 +4,9 @@ import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.io.formats.GiraphFileInputFormat;
 import org.apache.giraph.io.formats.IdWithValueTextOutputFormat;
 import org.apache.giraph.io.formats.JsonLongDoubleFloatDoubleVertexInputFormat;
+import org.apache.giraph.io.formats.LongDoubleDoubleAdjacencyListVertexInputFormat;
+import org.apache.giraph.io.formats.SrcIdDstIdEdgeValueTextOutputFormat;
+import org.apache.giraph.io.formats.TextDoubleDoubleAdjacencyListVertexInputFormat;
 import org.apache.giraph.job.GiraphJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -13,16 +16,18 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
 import clustering.ClusteringCoefficient;
+import inputformats.EdgeInputFormat;
+import inputformats.LongTextTextAdjacencyListVertexInputFormat;
 
 public class GiraphAppRunner implements Tool{
 
 	private final String RESOURCES_DIR = System.getProperty("user.dir") + "/src/main/resources/";
+	private final String INPUT_FILE = "LongTextTextAdjacencyList.txt";
 	private Configuration conf;
 	private String inputPath;
 	private String outputPath;
 	private GiraphConfiguration giraphConf;
 	private static final Logger LOG = Logger.getLogger(GiraphAppRunner.class);
-
 	@Override
 	public Configuration getConf() {
 		return conf;
@@ -35,15 +40,18 @@ public class GiraphAppRunner implements Tool{
 
 	@Override
 	public int run(String[] args) throws Exception {
-		setInputPath(RESOURCES_DIR + "tiny.txt");
+		setInputPath(RESOURCES_DIR + INPUT_FILE);
 
 		giraphConf = new GiraphConfiguration();
 
-		giraphConf.setComputationClass(InDegree.class);
-		giraphConf.setVertexInputFormatClass(JsonLongDoubleFloatDoubleVertexInputFormat.class);
+//		giraphConf.setVertexInputFormatClass(JsonLongDoubleFloatDoubleVertexInputFormat.class);
+//		giraphConf.setVertexInputFormatClass(LongDoubleDoubleAdjacencyListVertexInputFormat.class);
+//		giraphConf.setVertexInputFormatClass(TextDoubleDoubleAdjacencyListVertexInputFormat.class);
+		giraphConf.setVertexInputFormatClass(LongTextTextAdjacencyListVertexInputFormat.class);
 		GiraphFileInputFormat.addVertexInputPath(giraphConf, new Path(getInputPath()));
+		
 		giraphConf.setVertexOutputFormatClass(IdWithValueTextOutputFormat.class);
-
+		
 		giraphConf.setWorkerConfiguration(0, 1, 100);
 		giraphConf.setLocalTestMode(true);
 		giraphConf.setMaxNumberOfSupersteps(10);
@@ -51,11 +59,11 @@ public class GiraphAppRunner implements Tool{
 		giraphConf.SPLIT_MASTER_WORKER.set(giraphConf, false);
 		giraphConf.USE_OUT_OF_CORE_GRAPH.set(giraphConf, true);
 
-//		countInDegree();
+		countInDegree();
 //		countOutDegree();
 //		countLocalClusteringCoefficient();
 //		countTotalNumberOfEdges();
-		simpleMasterComputation();
+//		simpleMasterComputation();
 
 		return 1;
 
@@ -63,6 +71,7 @@ public class GiraphAppRunner implements Tool{
 
 	public void countInDegree() {
 		setOutputPath(RESOURCES_DIR + "in_degree.txt");
+		giraphConf.setComputationClass(InDegree.class);
 		GiraphJob inDegreeJob;
 		try {
 			inDegreeJob = new GiraphJob(giraphConf, getClass().getName());
@@ -87,8 +96,7 @@ public class GiraphAppRunner implements Tool{
 	}
 
 	public void countLocalClusteringCoefficient() {
-		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/" +
-				"local_clustering_coefficient.txt");
+		setOutputPath(RESOURCES_DIR + "local_clustering_coefficient.txt");
 		giraphConf.setComputationClass(ClusteringCoefficient.ClusteringCoefficientComputation.class);
 		GiraphJob localClusteringCoefficientJob;
 		try {
@@ -101,7 +109,7 @@ public class GiraphAppRunner implements Tool{
 	}
 
 	public void countTotalNumberOfEdges() {
-		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/total_number_of_edges.txt");
+		setOutputPath(RESOURCES_DIR + "total_number_of_edges.txt");
 		giraphConf.setComputationClass(TotalNumberOfEdges.class);
 		GiraphJob totalNumberOfEdgesJob;
 		try {
@@ -114,7 +122,7 @@ public class GiraphAppRunner implements Tool{
 	}
 
 	public void simpleMasterComputation() {
-		setOutputPath("/home/lehel/workspace/graph-metrics/graph-metrics-giraph/src/main/resources/simple_master_computation.txt");
+		setOutputPath(RESOURCES_DIR + "simple_master_computation.txt");
 		giraphConf.setComputationClass(SimpleMasterComputeComputation.class);
 		GiraphJob simpleMasterComputeJob;
 		try {
