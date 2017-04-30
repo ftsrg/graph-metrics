@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import metrics.InDegree;
+import metrics.degrees.InDegree;
 
 public class TestGiraphApp {
 	final static String[] graphSeed = new String[] { "seed\t0" };

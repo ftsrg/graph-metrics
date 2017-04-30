@@ -22,6 +22,7 @@ public class DimensionalDegree {
 				MessageWithSenderAndEdgeType message = new MessageWithSenderAndEdgeType();
 				message.setSourceId(vertex.getId());
 				message.setMessage(vertex.getValue());
+				message.setEdgeValue(new Text());
 				sendMessage(edge.getTargetVertexId(), message);
 			}
 		}

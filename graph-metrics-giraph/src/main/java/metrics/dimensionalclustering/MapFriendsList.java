@@ -1,11 +1,12 @@
-package metrics.dimensionaldegree;
+package metrics.dimensionalclustering;
 
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
 
 import util.MessageWrapper;
 
-public class MessageWithSenderAndEdgeType extends MessageWrapper<LongWritable, Text, Text> {
+public class MapFriendsList extends MessageWrapper<LongWritable, MapWritable, Text> {
 
 	@Override
 	public Class<LongWritable> getVertexIdClass() {
@@ -13,8 +14,8 @@ public class MessageWithSenderAndEdgeType extends MessageWrapper<LongWritable, T
 	}
 
 	@Override
-	public Class<Text> getMessageClass() {
-		return Text.class;
+	public Class<MapWritable> getMessageClass() {
+		return MapWritable.class;
 	}
 
 	@Override
@@ -23,3 +24,4 @@ public class MessageWithSenderAndEdgeType extends MessageWrapper<LongWritable, T
 	}
 
 }
+

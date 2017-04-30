@@ -41,13 +41,15 @@ import org.apache.hadoop.io.WritableComparable;
  *            Message
  */
 @SuppressWarnings("rawtypes")
-public abstract class MessageWrapper<I extends WritableComparable, M extends Writable>
-		implements WritableComparable<MessageWrapper<I, M>> {
+public abstract class MessageWrapper<I extends WritableComparable, M extends Writable, E extends Writable>
+		implements WritableComparable<MessageWrapper<I, M, E>> {
 	/** Message sender vertex Id. */
 	private I sourceId;
 	/** Message with data. */
 	private M message;
-
+	
+	private E edgeValue;
+	
 	/** Configuration. */
 	private ImmutableClassesGiraphConfiguration<I, ?, ?> conf;
 
@@ -66,9 +68,10 @@ public abstract class MessageWrapper<I extends WritableComparable, M extends Wri
 	 *            Message Wrapper to be used internally.
 	 *
 	 */
-	public MessageWrapper(final I pSourceId, final M pMessage) {
+	public MessageWrapper(final I pSourceId, final M pMessage, E pEdgeValue) {
 		sourceId = pSourceId;
 		message = pMessage;
+		edgeValue = pEdgeValue;
 	}
 
 	/**
@@ -95,11 +98,16 @@ public abstract class MessageWrapper<I extends WritableComparable, M extends Wri
 	 * @throws IOException
 	 *             for IO.
 	 */
+	
+	public abstract Class<E> getEdgeValueClass();
+	
 	public void readFields(final DataInput input) throws IOException {
 		sourceId = (I) ReflectionUtils.newInstance(getVertexIdClass(), conf);
 		sourceId.readFields(input);
 		message = (M) ReflectionUtils.newInstance(getMessageClass(), conf);
 		message.readFields(input);
+		edgeValue = (E) ReflectionUtils.newInstance(getEdgeValueClass(), conf);
+		edgeValue.readFields(input);
 	}
 
 	/**
@@ -116,6 +124,7 @@ public abstract class MessageWrapper<I extends WritableComparable, M extends Wri
 		}
 		sourceId.write(output);
 		message.write(output);
+		edgeValue.write(output);
 	}
 
 	/**
@@ -174,7 +183,15 @@ public abstract class MessageWrapper<I extends WritableComparable, M extends Wri
 	public final void setMessage(final M pMessage) {
 		message = pMessage;
 	}
-
+	
+	public final E getEdgeValue() {
+		return edgeValue;
+	}
+	
+	public final void setEdgeValue(final E pEdgeValue) {
+		edgeValue = pEdgeValue;
+	}
+	
 	/**
 	 * Return Message to the form of a String.
 	 *
@@ -192,7 +209,7 @@ public abstract class MessageWrapper<I extends WritableComparable, M extends Wri
 	 *
 	 * @return 0 if equal
 	 */
-	public final int compareTo(final MessageWrapper<I, M> wrapper) {
+	public final int compareTo(final MessageWrapper<I, M, E> wrapper) {
 
 		if (this == wrapper) {
 			return 0;
@@ -213,19 +230,22 @@ public abstract class MessageWrapper<I extends WritableComparable, M extends Wri
 	 *
 	 * @return boolean value
 	 */
-	public final boolean equals(final MessageWrapper<I, M> other) {
+	public final boolean equals(final MessageWrapper<I, M, E> other) {
 		if (this == other) {
 			return true;
 		}
 		if (other == null || getClass() != other.getClass()) {
 			return false;
 		}
-		MessageWrapper<I, M> that = other;
+		MessageWrapper<I, M, E> that = other;
 
 		if (message != null ? !message.equals(that.message) : that.message != null) {
 			return false;
 		}
 		if (sourceId != null ? !sourceId.equals(that.sourceId) : that.sourceId != null) {
+			return false;
+		}
+		if (edgeValue != null ? !edgeValue.equals(that.edgeValue) : that.edgeValue != null) {
 			return false;
 		}
 		return true;

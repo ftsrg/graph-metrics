@@ -1,0 +1,7 @@
+SRK,actedIn,DDLJ
+DDLJ,actedIn,SRK
+Aamir,actedIn,PK
+PK,actedIn,Aamir
+Rajkumar Hirani,hasDirected,PK
+PK,hasDirected,Rajkumar Hirani
+DDLJ,hasGenre,Drama

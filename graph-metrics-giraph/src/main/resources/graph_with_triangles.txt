@@ -1,5 +1,5 @@
-0	R1	1	vertices	2	vertices	3	vertices
-1	E1	4	outgoing	2	outgoing
+0	R1	1	vertices	2	incoming	3	regions
+1	E1	4	outgoing
 2	Off	4	incoming	5	outgoing	6	incoming	3	outgoing
 3	On	5	incoming	6	outgoing	7	regions
 4	T1	2	target
