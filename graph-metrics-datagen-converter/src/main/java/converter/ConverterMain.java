@@ -75,7 +75,6 @@ public class ConverterMain {
       Long subjectId = ids.get(subject);
       Long objectId = ids.get(object);
       System.out.println(subjectId + ":" + objectId + ":" + predicate.getLocalName());
-
     }
   }
 }
