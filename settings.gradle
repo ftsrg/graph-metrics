@@ -2,3 +2,4 @@ rootProject.name = 'graph-metrics'
 
 include ':graph-metrics-flink'
 include ':graph-metrics-giraph'
+include ':graph-metrics-datagen-converter'
