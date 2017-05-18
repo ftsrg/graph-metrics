@@ -10,7 +10,15 @@ public class InDegree extends BasicComputation<LongWritable, Text, Text, LongWri
 
 	@Override
 	public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongWritable> messages) throws IOException {
-		vertex.setValue(new Text(String.valueOf(vertex.getNumEdges())));
-		vertex.voteToHalt();	
+		if (getSuperstep() == 0) {
+			sendMessageToAllEdges(vertex, new LongWritable(0));
+		} else if (getSuperstep() == 1) {
+			long inDegree = 0;
+			for (@SuppressWarnings("unused") LongWritable lw : messages) {
+				inDegree++;
+			}
+			vertex.setValue(new Text(String.valueOf(inDegree)));
+			vertex.voteToHalt();
+		}
 	}
 }

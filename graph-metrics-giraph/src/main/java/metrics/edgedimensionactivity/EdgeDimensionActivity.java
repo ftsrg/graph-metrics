@@ -22,7 +22,7 @@ public class EdgeDimensionActivity {
 				throws IOException {
 			if (getSuperstep() == 0) {
 				for (Edge<LongWritable, Text> edge : vertex.getEdges()) {
-					if (edge.getValue().toString().equals(DimensionType.OUTGOING.getLabel())) {
+					if (edge.getValue().toString().equals(DimensionType.CONTAINER_OF.getLabel())) {
 						aggregate(LongSumAggregator.class.getName(), new LongWritable(1));
 					}
 				}

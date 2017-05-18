@@ -21,8 +21,8 @@ public class DimensionalDegree {
 			for (Edge<LongWritable, Text> edge : vertex.getEdges()) {
 				MessageWithSenderAndEdgeType message = new MessageWithSenderAndEdgeType();
 				message.setSourceId(vertex.getId());
-				message.setMessage(vertex.getValue());
-				message.setEdgeValue(new Text());
+				message.setMessage(new Text());
+				message.setEdgeValue(edge.getValue());
 				sendMessage(edge.getTargetVertexId(), message);
 			}
 		}
@@ -33,14 +33,14 @@ public class DimensionalDegree {
 		@Override
 		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<MessageWithSenderAndEdgeType> messages) throws IOException {
 			long dimensionalDegree = 0;
-			final DimensionType dimension = DimensionType.OUTGOING;
+			DimensionType dimension = DimensionType.HAS_POST;
 			for (Edge<LongWritable, Text> edge : vertex.getEdges()) {
 				if (edge.getValue().toString().equals(dimension.getLabel())) {
 					dimensionalDegree++;
 				}
 			}
 			for (MessageWithSenderAndEdgeType message : messages) {
-				String messageLabel = message.getMessage().toString();
+				String messageLabel = message.getEdgeValue().toString();
 				if (messageLabel.equals(dimension.getLabel())) {
 					dimensionalDegree++;
 				}

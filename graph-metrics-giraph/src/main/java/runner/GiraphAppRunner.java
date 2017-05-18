@@ -7,6 +7,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.io.formats.GiraphFileInputFormat;
 import org.apache.giraph.io.formats.IdWithValueTextOutputFormat;
+import org.apache.giraph.io.formats.TextEdgeOutputFormat;
 import org.apache.giraph.job.GiraphJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -15,8 +16,12 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import inputformats.EdgeInputFormat;
+import inputformats.IntNullTextEdgeInputFormat;
 import inputformats.LongTextTextAdjacencyListVertexInputFormat;
+import inputformats.TextTextTextTextInputFormat;
 import metrics.clustering.LocalClusteringCoefficient;
+import metrics.degrees.AverageDegree;
 import metrics.degrees.InDegree;
 import metrics.degrees.OutDegree;
 import metrics.dimensionalclustering.DimensionalClustering1;
@@ -25,14 +30,16 @@ import metrics.dimensionaldegree.DimensionalDegree;
 import metrics.edgedimensionactivity.EdgeDimensionActivity;
 import metrics.edgedimensionconnectivity.EdgeDimensionConnectivity;
 import metrics.mpc.MultiplexParticipationCoefficient;
+import metrics.nedc.NodeExclusiveDimensionConnectivity;
 import metrics.nodeactivity.NodeActivity;
 import metrics.nodedimensionactivity.NodeDimensionActivity;
 import metrics.nodedimensionconnectivity.NodeDimensionConnectivity;
+import test.Test;
 
 public class GiraphAppRunner implements Tool {
 
 	private final String RESOURCES_DIR = System.getProperty("user.dir") + "/src/main/resources/";
-	private final String INPUT_FILE = "graph_with_triangles.txt";
+	private final String INPUT_FILE = "big_graph";
 	private Configuration conf;
 	private String inputPath;
 	private String outputPath;
@@ -54,35 +61,53 @@ public class GiraphAppRunner implements Tool {
 		setInputPath(RESOURCES_DIR + INPUT_FILE);
 
 		giraphConf = new GiraphConfiguration();
-		giraphConf.setVertexInputFormatClass(LongTextTextAdjacencyListVertexInputFormat.class);
+//		giraphConf.setVertexInputFormatClass(LongTextTextAdjacencyListVertexInputFormat.class);
+		giraphConf.setVertexInputFormatClass(TextTextTextTextInputFormat.class);
 		GiraphFileInputFormat.addVertexInputPath(giraphConf, new Path(getInputPath()));
 
 		giraphConf.setVertexOutputFormatClass(IdWithValueTextOutputFormat.class);
-
 		giraphConf.setWorkerConfiguration(0, 1, 100);
 		giraphConf.setLocalTestMode(true);
 		giraphConf.setMaxNumberOfSupersteps(10);
 
 		giraphConf.SPLIT_MASTER_WORKER.set(giraphConf, false);
 		giraphConf.USE_OUT_OF_CORE_GRAPH.set(giraphConf, true);
-
+		
+//		test();
 		countInDegree();
-		countOutDegree();
-		countLocalClusteringCoefficient();
-		countDimensionalDegree();
-		countNodeDimensionActivity();
-		countNodeDimensionConnectivity();
-		countEdgeDimensionActivity();
-		countEdgeDimensionConnectivity();
-		countNodeActivity();
-		countMultiplexParticipationCoefficient();
-		countDimensionalClustering1();
-		countDimensionalClustering2();
+//		countOutDegree();
+		countAverageDegree();
+//		countLocalClusteringCoefficient();
+//		countDimensionalDegree();
+//		countNodeDimensionActivity();
+//		countNodeDimensionConnectivity();
+//		countNodeExclusiveDimensionConnectivity();
+//		countEdgeDimensionActivity();
+//		countEdgeDimensionConnectivity();
+//		countNodeActivity();
+//		countMultiplexParticipationCoefficient();
+//		countDimensionalClustering1();
+//		countDimensionalClustering2();
 		
 		return 1;
 
 	}
 
+	public void test() throws IOException {
+		final String FILE_NAME = "test";
+		FileUtils.deleteDirectory(new File(RESOURCES_DIR + FILE_NAME));
+		setOutputPath(RESOURCES_DIR + FILE_NAME);
+		giraphConf.setComputationClass(Test.class);
+		GiraphJob testJob;
+		try {
+			testJob = new GiraphJob(giraphConf, getClass().getName());
+			FileOutputFormat.setOutputPath(testJob.getInternalJob(), new Path(getOutputPath()));
+			testJob.run(true);
+		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
+			LOG.error(exception);
+		}
+	}
+	
 	public void countInDegree() throws IOException {
 		final String FILE_NAME = "in_degree";
 		FileUtils.deleteDirectory(new File(RESOURCES_DIR + FILE_NAME));
@@ -108,6 +133,21 @@ public class GiraphAppRunner implements Tool {
 			outDegreeJob = new GiraphJob(giraphConf, getClass().getName());
 			FileOutputFormat.setOutputPath(outDegreeJob.getInternalJob(), new Path(getOutputPath()));
 			outDegreeJob.run(true);
+		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
+			LOG.error(exception);
+		}
+	}
+	
+	public void countAverageDegree() throws IOException {
+		final String FILE_NAME = "average_degree";
+		FileUtils.deleteDirectory(new File(RESOURCES_DIR + FILE_NAME));
+		setOutputPath(RESOURCES_DIR + FILE_NAME);
+		giraphConf.setComputationClass(AverageDegree.class);
+		GiraphJob averageDegreeJob;
+		try {
+			averageDegreeJob = new GiraphJob(giraphConf, getClass().getName());
+			FileOutputFormat.setOutputPath(averageDegreeJob.getInternalJob(), new Path(getOutputPath()));
+			averageDegreeJob.run(true);
 		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
 			LOG.error(exception);
 		}
@@ -172,6 +212,22 @@ public class GiraphAppRunner implements Tool {
 			nodeDimensionConnectivityJob = new GiraphJob(giraphConf, getClass().getName());
 			FileOutputFormat.setOutputPath(nodeDimensionConnectivityJob.getInternalJob(), new Path(getOutputPath()));
 			nodeDimensionConnectivityJob.run(true);
+		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
+			LOG.error(exception);
+		}
+	}
+	
+	public void countNodeExclusiveDimensionConnectivity() throws IOException {
+		final String FILE_NAME = "node_exclusive_dimension_connectivity";
+		FileUtils.deleteDirectory(new File(RESOURCES_DIR + FILE_NAME));
+		setOutputPath(RESOURCES_DIR + FILE_NAME);
+		giraphConf.setComputationClass(NodeExclusiveDimensionConnectivity.AggregateResult.class);
+		giraphConf.setMasterComputeClass(NodeExclusiveDimensionConnectivity.MasterCompute.class);
+		GiraphJob NEDCJob;
+		try {
+			NEDCJob = new GiraphJob(giraphConf, getClass().getName());
+			FileOutputFormat.setOutputPath(NEDCJob.getInternalJob(), new Path(getOutputPath()));
+			NEDCJob.run(true);
 		} catch (IOException | ClassNotFoundException | InterruptedException exception) {
 			LOG.error(exception);
 		}

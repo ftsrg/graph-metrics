@@ -16,13 +16,12 @@ import util.LongArrayListWritable;
 
 public class LocalClusteringCoefficient {
 	
-	public static class VertexInDegreeComputation extends BasicComputation<LongWritable, Text, Text, LongIdFriendsList> {
+	public static class VertexInDegreeComputation extends BasicComputation<LongWritable, Text, Text, LCCMessageWrapper> {
 
 		@Override
-		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongIdFriendsList> messages)
+		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LCCMessageWrapper> messages)
 				throws IOException {
-			vertex.setValue(new Text(String.valueOf(vertex.getNumEdges())));
-			LongIdFriendsList neighbours = new LongIdFriendsList();
+			LCCMessageWrapper neighbours = new LCCMessageWrapper();
 			neighbours.setSourceId(vertex.getId());
 			neighbours.setMessage(new LongArrayListWritable());
 			neighbours.setEdgeValue(new Text());
@@ -31,49 +30,45 @@ public class LocalClusteringCoefficient {
 		
 	}
 	
-	public static class VertexInOutDegreeComputation extends BasicComputation<LongWritable, Text, Text, LongIdFriendsList> {
+	public static class VertexInOutDegreeComputation extends BasicComputation<LongWritable, Text, Text, LCCMessageWrapper> {
 
 		@Override
-		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongIdFriendsList> messages)
+		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LCCMessageWrapper> messages)
 				throws IOException {
 			long inDegree = 0;
-			for (@SuppressWarnings("unused") LongIdFriendsList message : messages) {
+			for (@SuppressWarnings("unused") LCCMessageWrapper message : messages) {
 				inDegree++;
 			}
-			long outDegree = Long.parseLong(vertex.getValue().toString());
+			long outDegree = vertex.getNumEdges();
 			long inOutDegree = inDegree + outDegree;
 			vertex.setValue(new Text(String.valueOf(inOutDegree)));
-		}
-		
-	}
-
-	public static class SendFriendsList extends BasicComputation<LongWritable, Text, Text, LongIdFriendsList> {
-
-		@Override
-		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongIdFriendsList> messages)
-				throws IOException {
-
-			final LongArrayListWritable friends = new LongArrayListWritable();
-
+			
+			LongArrayListWritable friends = new LongArrayListWritable();
 			for (Edge<LongWritable, Text> edge : vertex.getEdges()) {
-				friends.add(WritableUtils.clone(edge.getTargetVertexId(), getConf()));
+				friends.add(edge.getTargetVertexId());
 			}
-			LongIdFriendsList message = new LongIdFriendsList();
+			for (LCCMessageWrapper msg : messages) {
+				friends.add(msg.getSourceId());
+			}
+			LCCMessageWrapper message = new LCCMessageWrapper();
 			message.setSourceId(vertex.getId());
 			message.setMessage(friends);
 			message.setEdgeValue(new Text());
 			sendMessageToAllEdges(vertex, message);
+			for (LCCMessageWrapper msg : messages) {
+				sendMessage(msg.getSourceId(), message);
+			}
 		}
-
+		
 	}
 
 	public static class NeighboursLinkComputation
-			extends BasicComputation<LongWritable, Text, Text, LongIdFriendsList> {
+			extends BasicComputation<LongWritable, Text, Text, LCCMessageWrapper> {
 		@Override
-		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongIdFriendsList> messages)
+		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LCCMessageWrapper> messages)
 				throws IOException {
 
-			for (LongIdFriendsList message : messages) {
+			for (LCCMessageWrapper message : messages) {
 				long commonNeighbours = 0;
 				for (LongWritable id : message.getMessage()) {
 					if (vertex.getEdgeValue(id) != null) {
@@ -82,7 +77,7 @@ public class LocalClusteringCoefficient {
 				}
 				LongArrayListWritable commonNeighboursCount = new LongArrayListWritable();
 				commonNeighboursCount.add(new LongWritable(commonNeighbours));
-				LongIdFriendsList newMessage = new LongIdFriendsList();
+				LCCMessageWrapper newMessage = new LCCMessageWrapper();
 				newMessage.setSourceId(vertex.getId());
 				newMessage.setMessage(commonNeighboursCount);
 				newMessage.setEdgeValue(new Text());
@@ -92,21 +87,26 @@ public class LocalClusteringCoefficient {
 		}
 	}
 	
-	public static class LCCComputation extends BasicComputation<LongWritable, Text, Text, LongIdFriendsList> {
+	public static class LCCComputation extends BasicComputation<LongWritable, Text, Text, LCCMessageWrapper> {
 
 		@Override
-		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongIdFriendsList> messages)
+		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LCCMessageWrapper> messages)
 				throws IOException {
 
 			long lcc = 0;
-			for (LongIdFriendsList message : messages) {
+			for (LCCMessageWrapper message : messages) {
 				lcc += message.getMessage().get(0).get();
 			}
 			long inOutDegree = Long.parseLong(vertex.getValue().toString());
 			System.out.println("INOUTDEGREE: " + vertex.getId() + ": " + inOutDegree);
 			NumberFormat formatter = new DecimalFormat("#0.00");
-			String format = formatter.format((double) (2 * lcc) / (inOutDegree * (inOutDegree - 1)));
-			vertex.setValue(new Text(format));
+			String format;
+			if (inOutDegree != 1) {
+				format = formatter.format((double) (lcc) / (inOutDegree * (inOutDegree - 1)));
+			} else {
+				format = formatter.format((double) (lcc) / (inOutDegree));
+			}
+			vertex.setValue(new Text(String.valueOf(format)));
 			vertex.voteToHalt();
 		}
 
@@ -122,10 +122,8 @@ public class LocalClusteringCoefficient {
 			} else if (superstep == 1) {
 				setComputation(VertexInOutDegreeComputation.class);
 			} else if (superstep == 2) {
-				setComputation(SendFriendsList.class);
-			} else if (superstep == 3) {
 				setComputation(NeighboursLinkComputation.class);
-			} else if (superstep == 4) {
+			} else if (superstep == 3) {
 				setComputation(LCCComputation.class);
 			}
 		}

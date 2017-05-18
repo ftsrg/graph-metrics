@@ -33,10 +33,10 @@ public class NodeActivity {
 		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<Text> messages) throws IOException {
 			Set<DimensionType> dimensions = new HashSet<>();
 			for (Text message : messages) {
-				dimensions.add(DimensionType.valueOf(message.toString().toUpperCase()));
+				dimensions.add(DimensionType.getEnumByName(message.toString()));
 			}
 			for (Edge<LongWritable, Text> edge : vertex.getEdges()) {
-				dimensions.add(DimensionType.valueOf(edge.getValue().toString().toUpperCase()));
+				dimensions.add(DimensionType.getEnumByName(edge.getValue().toString()));
 			}
 			vertex.setValue(new Text(String.valueOf(dimensions.size())));
 			vertex.voteToHalt();

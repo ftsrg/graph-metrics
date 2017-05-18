@@ -40,7 +40,7 @@ public class MultiplexParticipationCoefficient {
 			Map<DimensionType, Long> dimensionsMap = new HashMap<>();
 
 			for (Edge<LongWritable, Text> edge : vertex.getEdges()) {
-				DimensionType edgeDimension = DimensionType.valueOf(edge.getValue().toString().toUpperCase());
+				DimensionType edgeDimension = DimensionType.getEnumByName(edge.getValue().toString());
 				if (!dimensionsMap.containsKey(edgeDimension)) {
 					dimensionsMap.put(edgeDimension, Long.valueOf(1));
 				} else {
@@ -49,7 +49,7 @@ public class MultiplexParticipationCoefficient {
 			}
 
 			for (Text message : messages) {
-				DimensionType messageDimension = DimensionType.valueOf(message.toString().toUpperCase());
+				DimensionType messageDimension = DimensionType.getEnumByName(message.toString());
 				if (!dimensionsMap.containsKey(messageDimension)) {
 					dimensionsMap.put(messageDimension, Long.valueOf(1));
 				} else {

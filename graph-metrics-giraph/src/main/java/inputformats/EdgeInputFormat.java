@@ -9,7 +9,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
-public class EdgeInputFormat extends TextEdgeInputFormat<LongWritable, LongWritable>{
+public class EdgeInputFormat extends TextEdgeInputFormat<LongWritable, Text>{
 	
 	public EdgeInputFormat() {
 		super();
@@ -19,23 +19,23 @@ public class EdgeInputFormat extends TextEdgeInputFormat<LongWritable, LongWrita
 
 		@Override
 		protected LongWritable getSourceVertexId(Text line) throws IOException {
-			return new LongWritable(Long.parseLong(line.toString().split(":")[0]));
+			return new LongWritable(Long.parseLong(line.toString().split(",")[0]));
 		}
 
 		@Override
 		protected LongWritable getTargetVertexId(Text line) throws IOException {
-			return new LongWritable(Long.parseLong(line.toString().split(":")[1]));
+			return new LongWritable(Long.parseLong(line.toString().split(",")[1]));
 		}
 
 		@Override
-		protected LongWritable getValue(Text line) throws IOException {
-			return new LongWritable(Long.parseLong(line.toString().split(":")[2]));
+		protected Text getValue(Text line) throws IOException {
+			return new Text(line.toString().split(",")[2]);
 		}
 		
 	}
 	
 	@Override
-	public EdgeReader<LongWritable, LongWritable> createEdgeReader(InputSplit split, TaskAttemptContext context)
+	public EdgeReader<LongWritable, Text> createEdgeReader(InputSplit split, TaskAttemptContext context)
 			throws IOException {
 		return new mTextEdgeReaderFromEachLine();
 	}

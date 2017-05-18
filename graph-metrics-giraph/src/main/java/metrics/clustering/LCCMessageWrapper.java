@@ -6,7 +6,7 @@ import org.apache.hadoop.io.Text;
 import util.LongArrayListWritable;
 import util.MessageWrapper;
 
-public class LongIdFriendsList extends MessageWrapper<LongWritable, LongArrayListWritable, Text> {
+public class LCCMessageWrapper extends MessageWrapper<LongWritable, LongArrayListWritable, Text> {
 
 	@Override
 	public Class<LongWritable> getVertexIdClass() {

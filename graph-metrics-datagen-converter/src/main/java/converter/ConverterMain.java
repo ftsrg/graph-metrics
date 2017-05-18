@@ -1,7 +1,9 @@
 package converter;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,57 +26,67 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import com.google.common.collect.ImmutableList;
 
 public class ConverterMain {
-  public static void main(String[] args) throws RDFParseException, RepositoryException, IOException {
-    final Repository repository = new SailRepository(new MemoryStore());
-    repository.initialize();
-    // vf = repository.getValueFactory();
-    RepositoryConnection connection = repository.getConnection();
 
-    final List<String> filenames = ImmutableList.of( //
-        "social_network_activity_0_0.ttl", //
-        "social_network_person_0_0.ttl", //
-        "social_network_static_0_0.ttl");
-    for (String filename : filenames) {
-      final File modelFile = new File("src/main/resources/" + filename);
-      connection.add(modelFile, null, RDFFormat.TURTLE);
-    }
+	private static final String RESOURCES_DIR = System.getProperty("user.dir") + "/src/main/resources/";
 
-    // assign a unique id for each resource
-    final Map<Value, Long> ids = new HashMap<>();
-    long id = 0;
-    final RepositoryResult<Statement> typeStatements = connection.getStatements(null, RDF.TYPE, null);
-    while (typeStatements.hasNext()) {
-      final Statement statement = typeStatements.next();
-      final Resource subject = statement.getSubject();
-      ids.put(subject, id);
-      id++;
-    }
-    final RepositoryResult<Statement> otherStatements = connection.getStatements(null, null, null);
-    while (otherStatements.hasNext()) {
-      final Statement statement = otherStatements.next();
-      final Value object = statement.getObject();
-      if (ids.containsKey(object)) {
-        continue;
-      }
-      ids.put(object, id);
-      id++;
-    }
+	public static void main(String[] args) throws RDFParseException, RepositoryException, IOException {
+		final Repository repository = new SailRepository(new MemoryStore());
+		repository.initialize();
+		// vf = repository.getValueFactory();
+		RepositoryConnection connection = repository.getConnection();
 
-    RepositoryResult<Statement> statements = connection.getStatements(null, null, null);
-    while (statements.hasNext()) {
-      final Statement statement = statements.next();
+		final List<String> filenames = ImmutableList.of( //
+				"social_network_activity_0_0.ttl", //
+				"social_network_person_0_0.ttl", //
+				"social_network_static_0_0.ttl");
+		for (String filename : filenames) {
+			final File modelFile = new File("src/main/resources/" + filename);
+			connection.add(modelFile, null, RDFFormat.TURTLE);
+		}
 
-      final Resource subject = statement.getSubject();
-      final IRI predicate = statement.getPredicate();
-      final Value object = statement.getObject();
+		// assign a unique id for each resource
+		final Map<Value, Long> ids = new HashMap<>();
+		long id = 0;
+		final RepositoryResult<Statement> typeStatements = connection.getStatements(null, RDF.TYPE, null);
+		while (typeStatements.hasNext()) {
+			final Statement statement = typeStatements.next();
+			final Resource subject = statement.getSubject();
+			ids.put(subject, id);
+			id++;
+		}
+		final RepositoryResult<Statement> otherStatements = connection.getStatements(null, null, null);
+		while (otherStatements.hasNext()) {
+			final Statement statement = otherStatements.next();
+			final Value object = statement.getObject();
+			if (ids.containsKey(object)) {
+				continue;
+			}
+			ids.put(object, id);
+			id++;
+		}
 
-      if (predicate.equals(RDF.TYPE) || object instanceof Literal) {
-        continue;
-      }
+		RepositoryResult<Statement> statements = connection.getStatements(null, null, null);
+		File file = new File(RESOURCES_DIR + "big_graph");
+		FileWriter fw = new FileWriter(file);
+		PrintWriter pw = new PrintWriter(fw);
+		while (statements.hasNext()) {
+			final Statement statement = statements.next();
 
-      Long subjectId = ids.get(subject);
-      Long objectId = ids.get(object);
-      System.out.println(subjectId + ":" + objectId + ":" + predicate.getLocalName());
-    }
-  }
+			final Resource subject = statement.getSubject();
+			final IRI predicate = statement.getPredicate();
+			final Value object = statement.getObject();
+
+			if (predicate.equals(RDF.TYPE) || object instanceof Literal) {
+				continue;
+			}
+
+			Long subjectId = ids.get(subject);
+			Long objectId = ids.get(object);
+			// System.out.println(subjectId + ":" + objectId + ":" +
+			// predicate.getLocalName());
+			pw.println(subjectId + "," + predicate.getLocalName() + "," + objectId);
+
+		}
+		pw.close();
+	}
 }
