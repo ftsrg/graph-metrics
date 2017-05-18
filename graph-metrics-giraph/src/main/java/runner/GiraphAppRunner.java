@@ -1,7 +1,9 @@
 package runner;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.giraph.conf.GiraphConfiguration;
@@ -35,6 +37,7 @@ import test.Test;
 public class GiraphAppRunner implements Tool {
 
 	private final String RESOURCES_DIR = System.getProperty("user.dir") + "/src/main/resources/";
+	private final String BENCHMARK_DIR = System.getProperty("user.dir") + "/src/main/benchmark/";
 	private final String INPUT_FILE = "big_graph";
 	private Configuration conf;
 	private String inputPath;
@@ -51,7 +54,20 @@ public class GiraphAppRunner implements Tool {
 	public void setConf(Configuration conf) {
 		this.conf = conf;
 	}
-
+	
+	public void writeToFile(String path, double time) {
+		File file = new File(BENCHMARK_DIR + path);
+		FileWriter fileWriter;
+		try {
+			fileWriter = new FileWriter(file);
+			PrintWriter pw = new PrintWriter(fileWriter);
+			pw.println(time);
+			pw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public int run(String[] args) throws Exception {
 		setInputPath(RESOURCES_DIR + INPUT_FILE);
@@ -64,26 +80,98 @@ public class GiraphAppRunner implements Tool {
 		giraphConf.setVertexOutputFormatClass(IdWithValueTextOutputFormat.class);
 		giraphConf.setWorkerConfiguration(0, 1, 100);
 		giraphConf.setLocalTestMode(true);
-		giraphConf.setMaxNumberOfSupersteps(10);
+		giraphConf.setMaxNumberOfSupersteps(20);
 
 		giraphConf.SPLIT_MASTER_WORKER.set(giraphConf, false);
 		giraphConf.USE_OUT_OF_CORE_GRAPH.set(giraphConf, true);
 		
-//		test();
+		long starttime = 0;
+		long endtime = 0;
+		long elapsed = 0;
+		
+		starttime = System.nanoTime();
 		countInDegree();
-//		countOutDegree();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("in_degree", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countOutDegree();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("out_degree", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
 		countAverageDegree();
-//		countLocalClusteringCoefficient();
-//		countDimensionalDegree();
-//		countNodeDimensionActivity();
-//		countNodeDimensionConnectivity();
-//		countNodeExclusiveDimensionConnectivity();
-//		countEdgeDimensionActivity();
-//		countEdgeDimensionConnectivity();
-//		countNodeActivity();
-//		countMultiplexParticipationCoefficient();
-//		countDimensionalClustering1();
-//		countDimensionalClustering2();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("average_degree", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countLocalClusteringCoefficient();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("lcc", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countDimensionalDegree();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("dimensional_degree", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countNodeDimensionActivity();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("node_dimension_activity", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countNodeDimensionConnectivity();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("node_dimension_connectivity", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countNodeExclusiveDimensionConnectivity();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("nedc", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countEdgeDimensionActivity();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("edge_dimension_activity", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countEdgeDimensionConnectivity();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("edge_dimension_connectivity", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countNodeActivity();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("node_activity", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countMultiplexParticipationCoefficient();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("mpc", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countDimensionalClustering1();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("dc1", (double) elapsed / 1000000000.0);
+		
+		starttime = System.nanoTime();
+		countDimensionalClustering2();
+		endtime = System.nanoTime();
+		elapsed = endtime - starttime;
+		writeToFile("dc2", (double) elapsed / 1000000000.0);
 		
 		return 1;
 
@@ -138,7 +226,8 @@ public class GiraphAppRunner implements Tool {
 		final String FILE_NAME = "average_degree";
 		FileUtils.deleteDirectory(new File(RESOURCES_DIR + FILE_NAME));
 		setOutputPath(RESOURCES_DIR + FILE_NAME);
-		giraphConf.setComputationClass(AverageDegree.class);
+		giraphConf.setComputationClass(AverageDegree.AverageDegreeComputation.class);
+		giraphConf.setMasterComputeClass(AverageDegree.MasterCompute.class);
 		GiraphJob averageDegreeJob;
 		try {
 			averageDegreeJob = new GiraphJob(giraphConf, getClass().getName());
@@ -185,7 +274,7 @@ public class GiraphAppRunner implements Tool {
 		final String FILE_NAME = "node_dimension_activity";
 		FileUtils.deleteDirectory(new File(RESOURCES_DIR + FILE_NAME));
 		setOutputPath(RESOURCES_DIR + FILE_NAME);
-		giraphConf.setComputationClass(NodeDimensionActivity.NodeDimensionActivityComputation.class);
+		giraphConf.setComputationClass(NodeDimensionActivity.SetVertexValues.class);
 		giraphConf.setMasterComputeClass(NodeDimensionActivity.MasterCompute.class);
 		GiraphJob nodeDimensionActivityJob;
 		try {
@@ -201,7 +290,7 @@ public class GiraphAppRunner implements Tool {
 		final String FILE_NAME = "node_dimension_connectivity";
 		FileUtils.deleteDirectory(new File(RESOURCES_DIR + FILE_NAME));
 		setOutputPath(RESOURCES_DIR + FILE_NAME);
-		giraphConf.setComputationClass(NodeDimensionConnectivity.NodeDimensionConnectivityComputation.class);
+		giraphConf.setComputationClass(NodeDimensionConnectivity.SendOutEdges.class);
 		giraphConf.setMasterComputeClass(NodeDimensionConnectivity.MasterCompute.class);
 		GiraphJob nodeDimensionConnectivityJob;
 		try {

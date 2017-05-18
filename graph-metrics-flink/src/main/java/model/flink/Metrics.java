@@ -51,7 +51,18 @@ public class Metrics {
 		pw.close();
 	}
 	
-	public void writeToIntValueIntegerTuple2ToFile(String path, DataSet<Tuple2<IntValue, Integer>> dataSet) throws Exception {
+	public void writeIntValueDoubleToFile(String path, DataSet<Tuple2<IntValue, Double>> dataSet) throws Exception {
+		File file = new File(RESOURCES_DIR + path);
+		FileWriter fw = new FileWriter(file);
+		PrintWriter pw = new PrintWriter(fw);
+		List<Tuple2<IntValue, Double>> dataList = dataSet.collect();
+		for (Tuple2<IntValue, Double> result : dataList) {
+			pw.println(result.f0.getValue() + " " + result.f1);
+		}
+		pw.close();
+	}
+	
+	public void writeIntValueIntegerTuple2ToFile(String path, DataSet<Tuple2<IntValue, Integer>> dataSet) throws Exception {
 		File file = new File(RESOURCES_DIR + path);
 		FileWriter fw = new FileWriter(file);
 		PrintWriter pw = new PrintWriter(fw);
@@ -122,7 +133,7 @@ public class Metrics {
 		DataSet<Tuple2<IntValue, Integer>> result = null;
 		try {
 			result = graph.groupReduceOnEdges(new DimensionalDegree(id, dimensions), EdgeDirection.ALL);
-			writeToIntValueIntegerTuple2ToFile("dimensional_degree", result);
+			writeIntValueIntegerTuple2ToFile("dimensional_degree", result);
 		} catch (Exception exception) {
 			logger.error(exception);
 		}
@@ -158,8 +169,7 @@ public class Metrics {
 		DataSet<Tuple2<IntValue, Integer>> dataSet = graph.groupReduceOnEdges(new NodeDimensionActivity(dimension), EdgeDirection.ALL);
 		try {
 			List<Tuple2<IntValue, Integer>> result = dataSet.sum(1).collect();
-			System.out.println("NDC: " + ((double) result.get(0).f1) / dataSet.count());
-
+			writeNumberToFile("node_dimension_connectivity", ((double) result.get(0).f1) / dataSet.count());
 		} catch (Exception exception) {
 			logger.error(exception);
 		}
@@ -169,8 +179,7 @@ public class Metrics {
 		DataSet<Tuple2<IntValue, Integer>> dataSet = graph.groupReduceOnEdges(new NodeExclusiveDimensionActivity(dimension), EdgeDirection.ALL);
 		try {
 			List<Tuple2<IntValue, Integer>> result = dataSet.sum(1).collect();
-			System.out.println("NEDC: " + ((double) result.get(0).f1) / dataSet.count());
-
+			writeNumberToFile("nedc", ((double) result.get(0).f1) / dataSet.count());
 		} catch (Exception exception) {
 			logger.error(exception);
 		}
@@ -179,7 +188,7 @@ public class Metrics {
 	public void edgeDimensionActivity(DimensionType dimension) {
 		Graph<IntValue, NullValue, String> edgeFilteredGraph = graph.filterOnEdges(new EdgeDimensionActivityFilter(dimension));
 		try {
-			System.out.println("EDA: " + edgeFilteredGraph.getEdges().count());
+			writeNumberToFile("node_dimension_connectivity", edgeFilteredGraph.getEdges().count());
 		} catch (Exception exception) {
 			logger.error(exception);
 		}
@@ -188,7 +197,7 @@ public class Metrics {
 	public void edgeDimensionConnectivity(DimensionType dimension) {
 		Graph<IntValue, NullValue, String> edgeFilteredGraph = graph.filterOnEdges(new EdgeDimensionActivityFilter(dimension));
 		try {
-			System.out.println("EDC: " + ((double) edgeFilteredGraph.getEdges().count()) / graph.getEdges().count());
+			writeNumberToFile("edge_dimension_connectivity", ((double) edgeFilteredGraph.getEdges().count()) / graph.getEdges().count());
 		} catch (Exception exception) {
 			logger.error(exception);
 		}
@@ -197,7 +206,7 @@ public class Metrics {
 	public void nodeActivity(Integer id) {
 		DataSet<Tuple2<IntValue, Integer>> dataSet = graph.groupReduceOnEdges(new NodeActivity(new IntValue(id)), EdgeDirection.ALL);
 		try {
-			dataSet.print();
+			writeIntValueIntegerTuple2ToFile("node_activity", dataSet);
 		} catch (Exception exception) {
 			logger.error(exception);
 		}
@@ -211,7 +220,11 @@ public class Metrics {
 			sum += dimensionScale * dimensionScale;
 		}
 		double mpc = (((double) dimensionLength) / (dimensionLength - 1)) * (1.0 - sum);
-		System.out.println("MPC: " + mpc);
+		try {
+			writeNumberToFile("mpc", mpc);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void triangleListing() {
@@ -229,7 +242,7 @@ public class Metrics {
 	public void dc1() {
 		DataSet<Tuple2<IntValue, Double>> result = graph.groupReduceOnEdges(new DC1Metrics(), EdgeDirection.ALL);
 		try {
-			result.print();
+			writeIntValueDoubleToFile("dc1", result);
 		} catch (Exception exception) {
 			logger.error(exception);
 		}
@@ -238,7 +251,7 @@ public class Metrics {
 	public void dc2() {
 		DataSet<Tuple2<IntValue, Double>> result = graph.groupReduceOnEdges(new DC2Metrics(), EdgeDirection.ALL);
 		try {
-			result.print();
+			writeIntValueDoubleToFile("dc2", result);
 		} catch (Exception exception) {
 			logger.error(exception);
 		}

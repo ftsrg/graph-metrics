@@ -11,16 +11,7 @@ public class OutDegree extends BasicComputation<LongWritable, Text, Text, LongWr
 
 	@Override
 	public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongWritable> messages) throws IOException {
-		if (getSuperstep() == 0) {
-			sendMessageToAllEdges(vertex, new LongWritable(0));
-		} else if (getSuperstep() == 1) {
-			int messageCount = 0;
-			for (@SuppressWarnings("unused")
-			LongWritable message : messages) {
-				messageCount += 1;
-			}
-			vertex.setValue(new Text(String.valueOf(messageCount)));
-		}
+		vertex.setValue(new Text(String.valueOf(vertex.getNumEdges())));
 		vertex.voteToHalt();
 	}
 }

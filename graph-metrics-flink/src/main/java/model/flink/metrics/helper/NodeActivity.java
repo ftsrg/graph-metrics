@@ -21,7 +21,7 @@ public final class NodeActivity implements EdgesFunctionWithVertexValue<IntValue
 
 	@Override
 	public void iterateEdges(Vertex<IntValue, NullValue> vertex, Iterable<Edge<IntValue, String>> edges, Collector<Tuple2<IntValue, Integer>> out) throws Exception {
-		if (id.getValue() == vertex.getId().getValue()) {
+//		if (id.getValue() == vertex.getId().getValue()) {
 			Set<String> distinctEdgeDimensions = new HashSet<>();
 			for (Edge<IntValue, String> edge : edges) {
 				if (!distinctEdgeDimensions.contains(edge.getValue())) {
@@ -29,7 +29,7 @@ public final class NodeActivity implements EdgesFunctionWithVertexValue<IntValue
 				}
 			}
 			out.collect(new Tuple2<>(vertex.getId(), distinctEdgeDimensions.size()));
-		}
+//		}
 
 	}
 
