@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.flink.graph.Edge;
 import org.apache.flink.graph.Graph;
 import org.apache.flink.types.IntValue;
+import org.apache.flink.types.NullValue;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Joiner;
@@ -17,7 +18,7 @@ public class EdgeUtils {
 	final static Logger logger = Logger.getLogger(EdgeUtils.class);
 	public static Map<IntValue, List<Edge<IntValue, String>>> edgeMap;
 	
-	public static void init(Graph<IntValue, String, String> graph) {
+	public static void init(Graph<IntValue, NullValue, String> graph) {
 		edgeMap = new HashMap<>();
 		List<Edge<IntValue, String>> edges = null;
 		try {

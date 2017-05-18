@@ -69,6 +69,11 @@ public class ConverterMain {
 		File file = new File(RESOURCES_DIR + "big_graph");
 		FileWriter fw = new FileWriter(file);
 		PrintWriter pw = new PrintWriter(fw);
+		File flinkEdges = new File(RESOURCES_DIR + "flink_edges");
+		FileWriter flinkEdgesFileWriter = new FileWriter(flinkEdges);
+		
+		PrintWriter flinkEdgesWriter = new PrintWriter(flinkEdgesFileWriter);
+		
 		while (statements.hasNext()) {
 			final Statement statement = statements.next();
 
@@ -85,8 +90,23 @@ public class ConverterMain {
 			// System.out.println(subjectId + ":" + objectId + ":" +
 			// predicate.getLocalName());
 			pw.println(subjectId + "," + predicate.getLocalName() + "," + objectId);
+			flinkEdgesWriter.println(subjectId + " " + objectId + " " + predicate.getLocalName());
 
 		}
+		flinkEdgesWriter.close();
 		pw.close();
+		
+		createFlinkVertexFile();
+	}
+	
+	
+	public static void createFlinkVertexFile() throws IOException {
+		File file = new File(RESOURCES_DIR + "flink_vertices");
+		FileWriter flinkVerticesFileWriter = new FileWriter(file);
+		PrintWriter flinkVerticesWriter = new PrintWriter(flinkVerticesFileWriter);
+		for (int i = 0; i <= 57995; i++) {
+			flinkVerticesWriter.println(i);
+		}
+		flinkVerticesWriter.close();
 	}
 }

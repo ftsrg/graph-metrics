@@ -16,7 +16,7 @@ public class NodeDimensionActivity {
 
 	public static class NodeDimensionActivityComputation
 			extends BasicComputation<LongWritable, Text, Text, LongWritable> {
-
+		// NEM JÓ
 		@Override
 		public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongWritable> messages)
 				throws IOException {

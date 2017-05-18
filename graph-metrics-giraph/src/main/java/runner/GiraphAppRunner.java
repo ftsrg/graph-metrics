@@ -7,7 +7,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.giraph.conf.GiraphConfiguration;
 import org.apache.giraph.io.formats.GiraphFileInputFormat;
 import org.apache.giraph.io.formats.IdWithValueTextOutputFormat;
-import org.apache.giraph.io.formats.TextEdgeOutputFormat;
 import org.apache.giraph.job.GiraphJob;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -16,9 +15,6 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import inputformats.EdgeInputFormat;
-import inputformats.IntNullTextEdgeInputFormat;
-import inputformats.LongTextTextAdjacencyListVertexInputFormat;
 import inputformats.TextTextTextTextInputFormat;
 import metrics.clustering.LocalClusteringCoefficient;
 import metrics.degrees.AverageDegree;

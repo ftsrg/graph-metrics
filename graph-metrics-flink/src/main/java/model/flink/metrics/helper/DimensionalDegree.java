@@ -7,6 +7,7 @@ import org.apache.flink.graph.Edge;
 import org.apache.flink.graph.EdgesFunctionWithVertexValue;
 import org.apache.flink.graph.Vertex;
 import org.apache.flink.types.IntValue;
+import org.apache.flink.types.NullValue;
 import org.apache.flink.util.Collector;
 
 /**
@@ -15,7 +16,7 @@ import org.apache.flink.util.Collector;
  * @author Lehel
  *
  */
-public final class DimensionalDegree implements EdgesFunctionWithVertexValue<IntValue, String, String, Tuple2<IntValue, Integer>> {
+public final class DimensionalDegree implements EdgesFunctionWithVertexValue<IntValue, NullValue, String, Tuple2<IntValue, Integer>> {
 	private static final long serialVersionUID = 1L;
 	private IntValue id;
 	private List<DimensionType> dimensions;
@@ -46,12 +47,12 @@ public final class DimensionalDegree implements EdgesFunctionWithVertexValue<Int
 	 *            - stores information about id's and their dimensional degrees.
 	 */
 	@Override
-	public void iterateEdges(Vertex<IntValue, String> vertex, Iterable<Edge<IntValue, String>> edges, Collector<Tuple2<IntValue, Integer>> out) throws Exception {
+	public void iterateEdges(Vertex<IntValue, NullValue> vertex, Iterable<Edge<IntValue, String>> edges, Collector<Tuple2<IntValue, Integer>> out) throws Exception {
 		int degree = 0;
 		if (id != null) {
 			if (id.getValue() == vertex.getId().getValue()) {
 				for (Edge<IntValue, String> edge : edges) {
-					DimensionType edgeDimension = DimensionType.valueOf(edge.getValue().toUpperCase());
+					DimensionType edgeDimension = DimensionType.getEnumByName(edge.getValue());
 					if (dimensions.contains(edgeDimension)) {
 						degree++;
 					}
@@ -60,7 +61,7 @@ public final class DimensionalDegree implements EdgesFunctionWithVertexValue<Int
 			}
 		} else {
 			for (Edge<IntValue, String> edge : edges) {
-				DimensionType edgeDimension = DimensionType.valueOf(edge.getValue().toUpperCase());
+				DimensionType edgeDimension = DimensionType.getEnumByName(edge.getValue());
 				if (dimensions.contains(edgeDimension)) {
 					degree++;
 				}

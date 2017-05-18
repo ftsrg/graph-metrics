@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
+import org.apache.giraph.aggregators.LongSumAggregator;
 import org.apache.giraph.graph.BasicComputation;
 import org.apache.giraph.graph.Vertex;
+import org.apache.giraph.master.DefaultMasterCompute;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
@@ -13,10 +15,29 @@ public class AverageDegree extends BasicComputation<LongWritable, Text, Text, Lo
 
 	@Override
 	public void compute(Vertex<LongWritable, Text, Text> vertex, Iterable<LongWritable> messages) throws IOException {
+		if (getSuperstep() == 1) {
+			MEG KELL ÍRNI
+		}
+		
 		NumberFormat formatter = new DecimalFormat("#0.00");
 		Text value = new Text(formatter.format((double) (2 * getTotalNumEdges()) / getTotalNumVertices()));
 		vertex.setValue(value);
 		vertex.voteToHalt();
 	}
+	
+	public static class MasterCompute extends DefaultMasterCompute {
 
+		public void initialize() throws InstantiationException, IllegalAccessException {
+			registerAggregator(LongSumAggregator.class.getName(), LongSumAggregator.class);
+		}
+
+		@Override
+		public final void compute() {
+			long superstep = getSuperstep();
+			if (superstep == 2) {
+				haltComputation();
+			}
+		}
+	}
+	
 }

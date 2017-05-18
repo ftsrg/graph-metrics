@@ -5,9 +5,10 @@ import org.apache.flink.graph.Edge;
 import org.apache.flink.graph.EdgesFunctionWithVertexValue;
 import org.apache.flink.graph.Vertex;
 import org.apache.flink.types.IntValue;
+import org.apache.flink.types.NullValue;
 import org.apache.flink.util.Collector;
 
-public final class NodeDimensionActivity implements EdgesFunctionWithVertexValue<IntValue, String, String, Tuple2<IntValue, Integer>> {
+public final class NodeDimensionActivity implements EdgesFunctionWithVertexValue<IntValue, NullValue, String, Tuple2<IntValue, Integer>> {
 	private static final long serialVersionUID = 1L;
 	private DimensionType dimension;
 
@@ -16,7 +17,7 @@ public final class NodeDimensionActivity implements EdgesFunctionWithVertexValue
 	}
 
 	@Override
-	public void iterateEdges(Vertex<IntValue, String> vertex, Iterable<Edge<IntValue, String>> edges, Collector<Tuple2<IntValue, Integer>> out) throws Exception {
+	public void iterateEdges(Vertex<IntValue, NullValue> vertex, Iterable<Edge<IntValue, String>> edges, Collector<Tuple2<IntValue, Integer>> out) throws Exception {
 		boolean isActive = false;
 		for (Edge<IntValue, String> edge : edges) {
 			if (edge.getValue().equals(dimension.getLabel())) {
