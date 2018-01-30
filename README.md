@@ -6,4 +6,3 @@ Tools:
 
 * [Apache Flink Gelly](https://ci.apache.org/projects/flink/flink-docs-release-1.2/dev/libs/gelly/index.html)
 * [Apache Giraph](http://giraph.apache.org/)
-* [Apache Spark GraphX](http://spark.apache.org/graphx/)
